@@ -1,0 +1,26 @@
+# Code Owners
+
+# Core plugin files
+/DummyDataGeneratorPlugin.php @munir-abbasi
+/version.xml @munir-abbasi
+/composer.json @munir-abbasi
+
+# Source code
+/classes/ @munir-abbasi
+/api/ @munir-abbasi
+
+# Tests
+/tests/ @munir-abbasi
+
+# Documentation
+/README.md @munir-abbasi
+/INSTALLATION.md @munir-abbasi
+/API_DOCUMENTATION.md @munir-abbasi
+/CHANGELOG.md @munir-abbasi
+/CONTRIBUTING.md @munir-abbasi
+
+# GitHub configuration
+/.github/ @munir-abbasi
+
+# Locale/Translations
+/locale/ @munir-abbasi
