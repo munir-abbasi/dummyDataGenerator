@@ -18,8 +18,9 @@ A plugin for generating dummy data (users, submissions, issues) for Open Journal
 # 1. Copy plugin to OJS
 cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
 
-# 2. Clear cache
-cd /path/to/ojs && php tools/clearCache.php
+# 2. Clear cache (via admin panel or manually)
+# Admin panel: Website Administration → Settings → Website → Clear Cache
+# OR manually: rm -rf /path/to/ojs/cache/*
 
 # 3. Enable plugin via Website Administration → Settings → Website → Plugins
 
@@ -71,27 +72,27 @@ curl -X POST http://your-ojs-url/api/v1/users/generate-users \
    ```
 
 2. **Clear OJS cache:**
-   ```bash
-   cd /path/to/ojs
-   php tools/clearCache.php
-   ```
+   - **Via Admin Panel:** Website Administration → Settings → Website → Clear Cache
+   - **OR Manually:** `rm -rf /path/to/ojs/cache/*`
 
 3. **Enable plugin:**
    - Navigate to: Website Administration → Settings → Website → Plugins
    - Find "Dummy Data Generator" and enable it
 
-### Method 2: CLI Installation
+### Method 2: CLI Installation (if available)
 
 ```bash
 # Copy plugin
 cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
 
-# Clear cache
-cd /path/to/ojs && php tools/clearCache.php
+# Clear cache (manual)
+rm -rf /path/to/ojs/cache/*
 
-# Enable via CLI
+# Enable via CLI (only if tools/plugins.php exists)
 php tools/plugins.php enable dummyDataGenerator
 ```
+
+**Note:** The `tools/plugins.php` script may not be available in all OJS installations. Use the web interface if CLI tools are unavailable.
 
 ### Troubleshooting
 

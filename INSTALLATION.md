@@ -81,15 +81,17 @@ chmod -R 755 dummyDataGenerator/
 
 Clear the template and data cache:
 
-```bash
-cd /path/to/ojs
-php tools/clearCache.php
-```
+**Method A: Via Admin Panel (Recommended)**
+1. Log in as Site Administrator
+2. Navigate to: **Website Administration → Settings → Website**
+3. Click **Clear Cache** button
 
-**Alternative:** Delete cache manually:
+**Method B: Manual Cache Clearing**
 ```bash
 rm -rf /path/to/ojs/cache/*
 ```
+
+**Note:** The `tools/clearCache.php` script may not be available in all OJS 3.5+ installations. Use the admin panel or manual method instead.
 
 ---
 

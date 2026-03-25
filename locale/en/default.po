@@ -14,12 +14,6 @@ msgstr "Dummy Data Generator"
 msgid "plugins.generic.dummyDataGenerator.description"
 msgstr "Generate dummy users, submissions, and issues for OJS development and testing."
 
-msgid "plugins.generic.dummyDataGenerator.settings.title"
-msgstr "Dummy Data Generator Settings"
-
-msgid "plugins.generic.dummyDataGenerator.settings.description"
-msgstr "Generate fake data for testing your OJS installation. This plugin creates users with author roles, submissions progressed through the editorial workflow, and published issues."
-
 msgid "plugins.generic.dummyDataGenerator.generateUsers"
 msgstr "Generate Users"
 
@@ -32,35 +26,17 @@ msgstr "Generate Issue"
 msgid "plugins.generic.dummyDataGenerator.cleanup"
 msgstr "Cleanup All Data"
 
-msgid "plugins.generic.dummyDataGenerator.userCount"
-msgstr "Number of Users"
-
-msgid "plugins.generic.dummyDataGenerator.submissionCount"
-msgstr "Number of Submissions"
-
-msgid "plugins.generic.dummyDataGenerator.defaultPassword"
-msgstr "Default Password"
-
 msgid "plugins.generic.dummyDataGenerator.warning"
 msgstr "Warning: This will create permanent data in your database. Use only on development/test installations."
 
 msgid "plugins.generic.dummyDataGenerator.cleanupWarning"
 msgstr "Warning: This will permanently delete all generated dummy data. This action cannot be undone."
 
-msgid "plugins.generic.dummyDataGenerator.success.users"
-msgstr "Successfully created {$count} users."
-
 msgid "plugins.generic.dummyDataGenerator.success.usersCreated"
 msgstr "Successfully created {$count} users with author role. All passwords set to: DummyUser123!"
 
-msgid "plugins.generic.dummyDataGenerator.success.submissions"
-msgstr "Successfully created {$count} submissions."
-
 msgid "plugins.generic.dummyDataGenerator.success.submissionsCreated"
 msgstr "Successfully created {$count} submissions and progressed through workflow to production stage."
-
-msgid "plugins.generic.dummyDataGenerator.success.issue"
-msgstr "Successfully created and published issue."
 
 msgid "plugins.generic.dummyDataGenerator.success.issueCreated"
 msgstr "Issue created and published with all submissions."
@@ -89,14 +65,5 @@ msgstr "Cleanup failed: {$error}"
 msgid "plugins.generic.dummyDataGenerator.error.issueCreationFailed"
 msgstr "Failed to create issue: {$error}"
 
-msgid "plugins.generic.dummyDataGenerator.error.fileUploadFailed"
-msgstr "Failed to upload file"
-
 msgid "plugins.generic.dummyDataGenerator.info.passwordNote"
 msgstr "Note: All generated users will have the password: DummyUser123!"
-
-msgid "plugins.generic.dummyDataGenerator.info.maxUsers"
-msgstr "Maximum 100 users per request"
-
-msgid "plugins.generic.dummyDataGenerator.info.maxSubmissions"
-msgstr "Maximum 200 submissions per request"

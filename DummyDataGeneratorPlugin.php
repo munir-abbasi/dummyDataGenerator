@@ -27,6 +27,31 @@ use PKP\security\Role;
 class DummyDataGeneratorPlugin extends GenericPlugin
 {
     /**
+     * @copydoc Plugin::getName()
+     */
+    public function getName(): string
+    {
+        return 'dummyDataGenerator';
+    }
+
+    /**
+     * @copydoc Plugin::getPluginPath()
+     */
+    public function getPluginPath(): string
+    {
+        return __DIR__;
+    }
+
+    /**
+     * @copydoc Plugin::getHideManagement()
+     */
+    public function getHideManagement(): bool
+    {
+        // Keep plugin visible in management interface
+        return false;
+    }
+
+    /**
      * @copydoc Plugin::register()
      */
     public function register($category, $path, $mainContextId = null): bool
