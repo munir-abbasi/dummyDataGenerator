@@ -1,0 +1,27 @@
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	deleted:    .planning/1-UAT.md
+	deleted:    .planning/PROJECT.md
+	deleted:    .planning/codebase/ARCHITECTURE.md
+	deleted:    .planning/codebase/CONCERNS.md
+	deleted:    .planning/codebase/CONVENTIONS.md
+	deleted:    .planning/codebase/INTEGRATIONS.md
+	deleted:    .planning/codebase/STACK.md
+	deleted:    .planning/codebase/STRUCTURE.md
+	deleted:    .planning/codebase/TESTING.md
+	deleted:    .planning/config.json
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_history.txt
+	git_status.txt
+	out.txt
+
