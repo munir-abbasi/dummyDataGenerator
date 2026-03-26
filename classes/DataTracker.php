@@ -35,11 +35,11 @@ class DataTracker
      * Track created users
      *
      * @param array $userIds User IDs to track
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      */
-    public function trackUsers(array $userIds, int $contextId): void
+    public function trackUsers(array $userIds, \PKP\context\Context $context): void
     {
-        $existing = $this->getTrackedUsers($contextId);
+        $existing = $this->getTrackedUsers($context);
         $merged = array_merge($existing, $userIds);
 
         // Limit to prevent context settings bloat
@@ -49,29 +49,21 @@ class DataTracker
             );
         }
 
-        $context = Application::get()->getRequest()->getContext();
-        if ($context) {
-            $context->updateSetting(
-                self::TRACKING_SETTING_PREFIX . 'users',
-                array_unique($merged),
-                'object'
-            );
-        }
+        $context->updateSetting(
+            self::TRACKING_SETTING_PREFIX . 'users',
+            array_unique($merged),
+            'object'
+        );
     }
 
     /**
      * Get tracked users
      *
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      * @return array Array of user IDs
      */
-    public function getTrackedUsers(int $contextId): array
+    public function getTrackedUsers(\PKP\context\Context $context): array
     {
-        $context = Application::get()->getRequest()->getContext();
-        if (!$context) {
-            return [];
-        }
-
         $userIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'users');
         return is_array($userIds) ? $userIds : [];
     }
@@ -80,11 +72,11 @@ class DataTracker
      * Track created submissions
      *
      * @param array $submissionIds Submission IDs to track
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      */
-    public function trackSubmissions(array $submissionIds, int $contextId): void
+    public function trackSubmissions(array $submissionIds, \PKP\context\Context $context): void
     {
-        $existing = $this->getTrackedSubmissions($contextId);
+        $existing = $this->getTrackedSubmissions($context);
         $merged = array_merge($existing, $submissionIds);
 
         // Limit to prevent context settings bloat
@@ -94,29 +86,21 @@ class DataTracker
             );
         }
 
-        $context = Application::get()->getRequest()->getContext();
-        if ($context) {
-            $context->updateSetting(
-                self::TRACKING_SETTING_PREFIX . 'submissions',
-                array_unique($merged),
-                'object'
-            );
-        }
+        $context->updateSetting(
+            self::TRACKING_SETTING_PREFIX . 'submissions',
+            array_unique($merged),
+            'object'
+        );
     }
 
     /**
      * Get tracked submissions
      *
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      * @return array Array of submission IDs
      */
-    public function getTrackedSubmissions(int $contextId): array
+    public function getTrackedSubmissions(\PKP\context\Context $context): array
     {
-        $context = Application::get()->getRequest()->getContext();
-        if (!$context) {
-            return [];
-        }
-
         $submissionIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'submissions');
         return is_array($submissionIds) ? $submissionIds : [];
     }
@@ -125,11 +109,11 @@ class DataTracker
      * Track created issues
      *
      * @param array $issueIds Issue IDs to track
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      */
-    public function trackIssues(array $issueIds, int $contextId): void
+    public function trackIssues(array $issueIds, \PKP\context\Context $context): void
     {
-        $existing = $this->getTrackedIssues($contextId);
+        $existing = $this->getTrackedIssues($context);
         $merged = array_merge($existing, $issueIds);
 
         // Limit to prevent context settings bloat
@@ -139,29 +123,21 @@ class DataTracker
             );
         }
 
-        $context = Application::get()->getRequest()->getContext();
-        if ($context) {
-            $context->updateSetting(
-                self::TRACKING_SETTING_PREFIX . 'issues',
-                array_unique($merged),
-                'object'
-            );
-        }
+        $context->updateSetting(
+            self::TRACKING_SETTING_PREFIX . 'issues',
+            array_unique($merged),
+            'object'
+        );
     }
 
     /**
      * Get tracked issues
      *
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      * @return array Array of issue IDs
      */
-    public function getTrackedIssues(int $contextId): array
+    public function getTrackedIssues(\PKP\context\Context $context): array
     {
-        $context = Application::get()->getRequest()->getContext();
-        if (!$context) {
-            return [];
-        }
-
         $issueIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'issues');
         return is_array($issueIds) ? $issueIds : [];
     }
@@ -169,10 +145,10 @@ class DataTracker
     /**
      * Delete all tracked entities
      *
-     * @param int $contextId Context ID
+     * @param \PKP\context\Context $context Context
      * @return array Deletion statistics
      */
-    public function cleanup(int $contextId): array
+    public function cleanup(\PKP\context\Context $context): array
     {
         $deleted = [
             'users' => 0,
@@ -181,7 +157,7 @@ class DataTracker
         ];
 
         // Delete tracked issues first (they reference submissions)
-        $issueIds = $this->getTrackedIssues($contextId);
+        $issueIds = $this->getTrackedIssues($context);
         foreach ($issueIds as $issueId) {
             try {
                 Repo::issue()->delete($issueId);
@@ -192,7 +168,7 @@ class DataTracker
         }
 
         // Delete tracked submissions
-        $submissionIds = $this->getTrackedSubmissions($contextId);
+        $submissionIds = $this->getTrackedSubmissions($context);
         foreach ($submissionIds as $submissionId) {
             try {
                 Repo::submission()->delete($submissionId);
@@ -203,7 +179,7 @@ class DataTracker
         }
 
         // Delete tracked users
-        $userIds = $this->getTrackedUsers($contextId);
+        $userIds = $this->getTrackedUsers($context);
         foreach ($userIds as $userId) {
             try {
                 Repo::user()->delete($userId);
@@ -214,12 +190,9 @@ class DataTracker
         }
 
         // Clear tracking settings
-        $context = Application::get()->getRequest()->getContext();
-        if ($context) {
-            $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'users', null);
-            $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'submissions', null);
-            $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'issues', null);
-        }
+        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'users', null);
+        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'submissions', null);
+        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'issues', null);
 
         return $deleted;
     }

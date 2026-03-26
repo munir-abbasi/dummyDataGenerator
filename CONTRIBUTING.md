@@ -6,13 +6,14 @@ This document provides guidelines and instructions for contributing.
 
 ---
 
-## 🎯 How to Contribute
+## How to Contribute
 
 ### Reporting Bugs
 
 Before creating bug reports, please check existing issues as you might find the problem already reported.
 
 **When creating a bug report, include:**
+
 - Clear title and description
 - Steps to reproduce the issue
 - Expected behavior vs actual behavior
@@ -21,6 +22,7 @@ Before creating bug reports, please check existing issues as you might find the 
 - Screenshots if applicable
 
 **Example:**
+
 ```markdown
 **Title:** Submission generation fails with "No context available"
 
@@ -47,6 +49,7 @@ When generating submissions via API, I get a 400 error.
 ### Suggesting Features
 
 Feature suggestions are welcome! Please create an issue with:
+
 - Clear description of the feature
 - Use case / problem it solves
 - Examples of how it would work
@@ -55,6 +58,7 @@ Feature suggestions are welcome! Please create an issue with:
 ### Pull Requests
 
 **Before submitting a PR:**
+
 1. Fork the repository
 2. Create a branch from `main`
 3. Make your changes
@@ -63,6 +67,7 @@ Feature suggestions are welcome! Please create an issue with:
 6. Submit PR with clear description
 
 **PR Guidelines:**
+
 - One feature/fix per PR
 - Follow existing code style (PSR-12)
 - Add/update tests for new functionality
@@ -71,7 +76,7 @@ Feature suggestions are welcome! Please create an issue with:
 
 ---
 
-## 🛠 Development Setup
+## Development Setup
 
 ### Prerequisites
 
@@ -83,17 +88,20 @@ Feature suggestions are welcome! Please create an issue with:
 ### Setup Development Environment
 
 1. **Fork and clone:**
+   
    ```bash
    git clone https://github.com/your-username/dummyDataGenerator.git
    cd dummyDataGenerator
    ```
 
 2. **Install dependencies:**
+   
    ```bash
    composer install --dev
    ```
 
 3. **Copy to OJS plugins:**
+   
    ```bash
    cp -r . /path/to/ojs/plugins/generic/dummyDataGenerator/
    ```
@@ -134,7 +142,7 @@ composer cs-fix
 
 ---
 
-## 📝 Coding Standards
+## Coding Standards
 
 ### PHP Standards
 
@@ -167,12 +175,14 @@ dummyDataGenerator/
 ### Documentation
 
 All files must include:
+
 - File header with copyright, license, author
 - Class/method DocBlocks
 - `@since` tag for version
 - `@param` and `@return` for methods
 
 **Example:**
+
 ```php
 <?php
 /**
@@ -212,22 +222,25 @@ class UserGenerator
 
 ---
 
-## 🧪 Testing Guidelines
+## Testing Guidelines
 
 ### Writing Tests
 
 **Unit Tests:**
+
 - Test one thing per method
 - Use descriptive names: `test_generateUsers_creates_correct_number_of_users()`
 - Mock all external dependencies
 - Keep tests fast (<1ms each)
 
 **Integration Tests:**
+
 - Test API endpoints
 - Use in-memory database
 - Test multiple components together
 
 **E2E Tests:**
+
 - Test complete workflows
 - Simulate real API usage
 - Verify end state
@@ -235,6 +248,7 @@ class UserGenerator
 ### Test Coverage
 
 Target coverage:
+
 - UserGenerator: 90%
 - SubmissionGenerator: 90%
 - IssueGenerator: 85%
@@ -245,7 +259,7 @@ Target coverage:
 
 ---
 
-## 🌍 Translations
+## Translations
 
 We welcome translations for all languages!
 
@@ -258,6 +272,7 @@ We welcome translations for all languages!
 5. Submit PR
 
 **Example:**
+
 ```bash
 mkdir -p locale/fr/
 cp locale/en/default.po locale/fr/
@@ -272,6 +287,7 @@ cp locale/en/default.po locale/fr/
 - Test all translated strings in context
 
 **Example:**
+
 ```po
 msgid "plugins.generic.dummyDataGenerator.success.usersCreated"
 msgstr "Successfully created {$count} users with author role..."
@@ -283,11 +299,12 @@ msgstr "{$count} utilisateurs créés avec succès avec le rôle d'auteur..."
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### Updating Documentation
 
 When adding features or fixing bugs, update:
+
 - README.md (if user-facing change)
 - API_DOCUMENTATION.md (if API change)
 - CHANGELOG.md (always)
@@ -303,7 +320,7 @@ When adding features or fixing bugs, update:
 
 ---
 
-## 🔀 Git Workflow
+## Git Workflow
 
 ### Branch Naming
 
@@ -327,6 +344,7 @@ footer (optional)
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -336,6 +354,7 @@ footer (optional)
 - `chore`: Maintenance
 
 **Examples:**
+
 ```
 feat(api): add rate limiting to generate-users endpoint
 
@@ -364,6 +383,7 @@ Add error code reference table.
 ### Pull Request Process
 
 1. **Create branch from `main`:**
+   
    ```bash
    git checkout main
    git pull origin main
@@ -371,17 +391,20 @@ Add error code reference table.
    ```
 
 2. **Make changes and commit:**
+   
    ```bash
    git add .
    git commit -m "feat: add your feature"
    ```
 
 3. **Push to your fork:**
+   
    ```bash
    git push origin feature/your-feature
    ```
 
 4. **Create PR on GitHub:**
+   
    - Go to repository
    - Click "Pull Requests"
    - Click "New Pull Request"
@@ -389,21 +412,24 @@ Add error code reference table.
    - Fill in PR template
 
 5. **Code review:**
+   
    - Maintainer reviews code
    - Address feedback
    - Push fixes to same branch
 
 6. **Merge:**
+   
    - Maintainer merges PR
    - Branch deleted
 
 ---
 
-## 🎨 Architecture Decisions
+## Architecture Decisions
 
 ### When to Create ADR
 
 Create Architecture Decision Record (ADR) when:
+
 - Adding major feature
 - Changing core architecture
 - Introducing new dependency
@@ -442,6 +468,7 @@ What becomes easier or more difficult to do because of this change?
 Email security concerns to: munir@syntaxhouse.com
 
 Include:
+
 - Description of vulnerability
 - Steps to reproduce
 - Potential impact
@@ -450,6 +477,7 @@ Include:
 ### Security Guidelines
 
 When contributing:
+
 - Never commit secrets or credentials
 - Use prepared statements (Repo APIs handle this)
 - Validate all input
@@ -476,16 +504,17 @@ When contributing:
 
 ---
 
-## 🏆 Recognition
+## Recognition
 
 Contributors are recognized in:
+
 - README.md (Contributors section)
 - CHANGELOG.md (for significant contributions)
 - GitHub Contributors page
 
 ---
 
-## 📋 Checklist for Contributors
+## Checklist for Contributors
 
 Before submitting PR:
 
@@ -501,7 +530,7 @@ Before submitting PR:
 
 ---
 
-## 🙏 Thank You!
+## Thank You!
 
 Your contributions make this plugin better for everyone. We appreciate your time and effort!
 

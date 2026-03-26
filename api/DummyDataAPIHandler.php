@@ -77,7 +77,7 @@ class DummyDataAPIHandler
 
         // Track for cleanup
         $tracker = new DataTracker();
-        $tracker->trackUsers($userIds, $contextId);
+        $tracker->trackUsers($userIds, $context);
 
         return response()->json([
             'success' => true,
@@ -122,7 +122,7 @@ class DummyDataAPIHandler
 
         // Get available authors (tracked dummy users)
         $tracker = new DataTracker();
-        $authorIds = $tracker->getTrackedUsers($contextId);
+        $authorIds = $tracker->getTrackedUsers($context);
 
         if (empty($authorIds)) {
             return response()->json([
@@ -148,7 +148,7 @@ class DummyDataAPIHandler
         }
 
         // Track for cleanup
-        $tracker->trackSubmissions($submissionIds, $contextId);
+        $tracker->trackSubmissions($submissionIds, $context);
 
         return response()->json([
             'success' => true,
@@ -179,7 +179,7 @@ class DummyDataAPIHandler
 
         // Get tracked submissions
         $tracker = new DataTracker();
-        $submissionIds = $tracker->getTrackedSubmissions($contextId);
+        $submissionIds = $tracker->getTrackedSubmissions($context);
 
         if (empty($submissionIds)) {
             return response()->json([
@@ -194,7 +194,7 @@ class DummyDataAPIHandler
             $issueId = $generator->createAndPublishIssue($submissionIds);
 
             // Track issue
-            $tracker->trackIssues([$issueId], $contextId);
+            $tracker->trackIssues([$issueId], $context);
 
             return response()->json([
                 'success' => true,
@@ -237,11 +237,10 @@ class DummyDataAPIHandler
             ], 400);
         }
 
-        $contextId = $context->getId();
         $tracker = new DataTracker();
 
         try {
-            $deleted = $tracker->cleanup($contextId);
+            $deleted = $tracker->cleanup($context);
 
             return response()->json([
                 'success' => true,

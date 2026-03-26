@@ -75,7 +75,10 @@ class DummyDataGeneratorPlugin extends GenericPlugin
     private function registerAPIHandler(): void
     {
         // Register custom API handler that extends PKPUserController
-        Hook::add('APIHandler::users', function (string $hookName, $apiHandler): bool {
+        Hook::add('APIHandler::endpoints::users', function (string $hookName, array $args): bool {
+            $apiController = $args[0];
+            $apiHandler = $args[1];
+
             $controller = new DummyDataAPIHandler($this);
             
             // Add our custom routes to the existing handler

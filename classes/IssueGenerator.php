@@ -120,7 +120,7 @@ class IssueGenerator
             // Create initial publication
             $publication = Repo::publication()->newDataObject([
                 'submissionId' => $submissionId,
-                'status' => 5, // STATUS_SCHEDULED - verified from forum.pkp.sfu.ca
+                'status' => \PKP\submission\Submission::STATUS_SCHEDULED,
             ]);
 
             $publicationId = Repo::publication()->add($publication);
@@ -132,7 +132,7 @@ class IssueGenerator
         // Update publication to assign to issue
         Repo::publication()->edit($publication, [
             'issueId' => $issueId,
-            'status' => 5, // STATUS_SCHEDULED - verified from forum.pkp.sfu.ca
+            'status' => \PKP\submission\Submission::STATUS_SCHEDULED,
         ]);
     }
 
@@ -195,7 +195,7 @@ class IssueGenerator
         
         foreach ($publications as $publication) {
             Repo::publication()->edit($publication, [
-                'status' => 3, // STATUS_PUBLISHED - verified from forum.pkp.sfu.ca
+                'status' => \PKP\submission\Submission::STATUS_PUBLISHED,
             ]);
         }
     }

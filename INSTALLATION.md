@@ -23,12 +23,14 @@ Before installing, ensure you have:
 ### Step 1: Download Plugin
 
 **Option A: Clone from GitHub**
+
 ```bash
 cd /tmp
 git clone https://github.com/munir-abbasi/dummyDataGenerator.git
 ```
 
 **Option B: Download ZIP**
+
 ```bash
 cd /tmp
 wget https://github.com/munir-abbasi/dummyDataGenerator/archive/refs/heads/main.zip
@@ -50,6 +52,7 @@ cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
 ```
 
 **Verify directory structure:**
+
 ```
 /path/to/ojs/plugins/generic/dummyDataGenerator/
 ├── DummyDataGeneratorPlugin.php
@@ -82,11 +85,13 @@ chmod -R 755 dummyDataGenerator/
 Clear the template and data cache:
 
 **Method A: Via Admin Panel (Recommended)**
+
 1. Log in as Site Administrator
 2. Navigate to: **Website Administration → Settings → Website**
 3. Click **Clear Cache** button
 
 **Method B: Manual Cache Clearing**
+
 ```bash
 rm -rf /path/to/ojs/cache/*
 ```
@@ -113,6 +118,7 @@ php tools/plugins.php enable dummyDataGenerator
 ```
 
 **Verify plugin is enabled:**
+
 ```bash
 php tools/plugins.php list | grep dummyDataGenerator
 ```
@@ -122,10 +128,12 @@ php tools/plugins.php list | grep dummyDataGenerator
 ### Step 6: Verify Installation
 
 **Check plugin appears in admin panel:**
+
 1. Go to Website Administration → Settings → Website → Plugins
 2. Verify "Dummy Data Generator" is listed and enabled
 
 **Test API endpoint:**
+
 ```bash
 curl -X POST \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
@@ -135,6 +143,7 @@ curl -X POST \
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -153,23 +162,28 @@ curl -X POST \
 **Symptoms:** Plugin doesn't appear in the plugin gallery
 
 **Solutions:**
+
 1. **Verify directory location:**
+   
    ```bash
    ls -la /path/to/ojs/plugins/generic/dummyDataGenerator/
    ```
 
 2. **Check version.xml exists and is valid:**
+   
    ```bash
    cat /path/to/ojs/plugins/generic/dummyDataGenerator/version.xml
    ```
 
 3. **Clear template cache:**
+   
    ```bash
    cd /path/to/ojs
    php tools/clearCache.php
    ```
 
 4. **Check file permissions:**
+   
    ```bash
    find /path/to/ojs/plugins/generic/dummyDataGenerator -type f -exec ls -la {} \;
    ```
@@ -183,6 +197,7 @@ curl -X POST \
 **Cause:** API endpoint accessed without journal context
 
 **Solution:** Include journal path in URL:
+
 ```bash
 # ❌ Wrong (no context)
 http://your-ojs-url/api/v1/users/generate-users
@@ -200,6 +215,7 @@ http://your-ojs-url/my-journal/api/v1/users/generate-users
 **Cause:** No users with author role exist
 
 **Solution:** Generate users first:
+
 ```bash
 # Step 1: Generate users
 curl -X POST http://your-ojs-url/journal/api/v1/users/generate-users \
@@ -221,9 +237,11 @@ curl -X POST http://your-ojs-url/journal/api/v1/users/generate-submissions \
 **Cause:** Missing editor permissions or incorrect workflow stage
 
 **Solution:**
+
 1. Ensure API token belongs to Manager or Site Admin
 2. Verify journal has editorial workflow configured
 3. Check OJS logs for detailed error:
+   
    ```bash
    tail -f /path/to/ojs/logs/error.log
    ```
@@ -237,24 +255,29 @@ curl -X POST http://your-ojs-url/journal/api/v1/users/generate-submissions \
 **Cause:** PHP syntax error or compatibility issue
 
 **Solution:**
+
 1. **Disable plugin via database:**
+   
    ```sql
    UPDATE versions SET current = 0 WHERE product = 'dummyDataGenerator';
    UPDATE plugin_settings SET setting_value = 0 WHERE setting_name = 'enabled';
    ```
 
 2. **Check PHP version:**
+   
    ```bash
    php -v
    # Should be 8.2+
    ```
 
 3. **Check error logs:**
+   
    ```bash
    tail -f /path/to/ojs/logs/error.log
    ```
 
 4. **Verify OJS version:**
+   
    ```bash
    cd /path/to/ojs
    php tools/clearCache.php
@@ -267,6 +290,7 @@ curl -X POST http://your-ojs-url/journal/api/v1/users/generate-submissions \
 **Symptoms:** Tests fail, autoloader not found
 
 **Solution:**
+
 ```bash
 cd /path/to/ojs/plugins/generic/dummyDataGenerator
 composer install --dev
@@ -291,11 +315,13 @@ curl -X DELETE \
 ### Step 2: Disable Plugin
 
 **Via Web Interface:**
+
 1. Website Administration → Settings → Website → Plugins
 2. Uncheck "Dummy Data Generator"
 3. Click **Save**
 
 **Via CLI:**
+
 ```bash
 cd /path/to/ojs
 php tools/plugins.php disable dummyDataGenerator
@@ -334,21 +360,25 @@ The plugin works with OJS multi-journal installations. Each journal context has 
 ### From v0.1.0 to v1.0.0
 
 1. **Backup database:**
+   
    ```bash
    mysqldump -u ojs_user -p ojs_database > backup.sql
    ```
 
 2. **Remove old plugin:**
+   
    ```bash
    rm -rf /path/to/ojs/plugins/generic/dummyDataGenerator
    ```
 
 3. **Install new version:**
+   
    ```bash
    cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
    ```
 
 4. **Clear cache and re-enable:**
+   
    ```bash
    php tools/clearCache.php
    php tools/plugins.php enable dummyDataGenerator

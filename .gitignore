@@ -3,6 +3,7 @@
 /coverage/
 /.phpunit.cache/
 /phpunit.xml.local
+PRE_SUBMISSION_CHECKLIST.md
 
 # IDE
 /.idea/
