@@ -1,0 +1,371 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to method input\\(\\) on an unknown class Illuminate\\\\Http\\\\Request\\.$#"
+			count: 3
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Application\\.$#"
+			count: 4
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Call to static method section\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Function __ not found\\.$#"
+			count: 15
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Function response not found\\.$#"
+			count: 15
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:cleanup\\(\\) has invalid return type Illuminate\\\\Http\\\\JsonResponse\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateIssue\\(\\) has invalid return type Illuminate\\\\Http\\\\JsonResponse\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateSubmissions\\(\\) has invalid return type Illuminate\\\\Http\\\\JsonResponse\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateUsers\\(\\) has invalid return type Illuminate\\\\Http\\\\JsonResponse\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Parameter \\$request of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:cleanup\\(\\) has invalid type Illuminate\\\\Http\\\\Request\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Parameter \\$request of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateIssue\\(\\) has invalid type Illuminate\\\\Http\\\\Request\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Parameter \\$request of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateSubmissions\\(\\) has invalid type Illuminate\\\\Http\\\\Request\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Parameter \\$request of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:generateUsers\\(\\) has invalid type Illuminate\\\\Http\\\\Request\\.$#"
+			count: 2
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Property APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\api\\\\DummyDataAPIHandler\\:\\:\\$plugin is never read, only written\\.$#"
+			count: 1
+			path: api/DummyDataAPIHandler.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Application\\.$#"
+			count: 7
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Call to static method issue\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Call to static method submission\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Call to static method user\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:cleanup\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:getTrackedIssues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:getTrackedSubmissions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:getTrackedUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:trackIssues\\(\\) has parameter \\$issueIds with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:trackSubmissions\\(\\) has parameter \\$submissionIds with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\DataTracker\\:\\:trackUsers\\(\\) has parameter \\$userIds with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/DataTracker.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\Faker\\:\\:generateKeywords\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/Faker.php
+
+		-
+			message: "#^Access to constant ISSUE_ACCESS_OPEN on an unknown class PKP\\\\issue\\\\Issue\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to method getId\\(\\) on an unknown class PKP\\\\issue\\\\Issue\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to method updateCurrentIssue\\(\\) on an unknown class APP\\\\issue\\\\IssueDAO\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Application\\.$#"
+			count: 3
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method getDAO\\(\\) on an unknown class PKP\\\\db\\\\DAORegistry\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method issue\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 8
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method publication\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 6
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method submission\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Call to static method transaction\\(\\) on an unknown class Illuminate\\\\Support\\\\Facades\\\\DB\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\IssueGenerator\\:\\:createAndPublishIssue\\(\\) has parameter \\$submissionIds with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\IssueGenerator\\:\\:createIssue\\(\\) has invalid return type PKP\\\\issue\\\\Issue\\.$#"
+			count: 2
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$issueDao contains unknown class APP\\\\issue\\\\IssueDAO\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Property APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\IssueGenerator\\:\\:\\$faker is never read, only written\\.$#"
+			count: 1
+			path: classes/IssueGenerator.php
+
+		-
+			message: "#^Access to constant ACCEPT on an unknown class PKP\\\\decision\\\\Decision\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant EXTERNAL_REVIEW on an unknown class PKP\\\\decision\\\\Decision\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant ROLE_ID_AUTHOR on an unknown class PKP\\\\security\\\\Role\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant ROLE_ID_MANAGER on an unknown class PKP\\\\security\\\\Role\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant ROLE_ID_SITE_ADMIN on an unknown class PKP\\\\security\\\\Role\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant SEND_TO_PRODUCTION on an unknown class PKP\\\\decision\\\\Decision\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant STATUS_QUEUED on an unknown class PKP\\\\submission\\\\Submission\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant SUBMISSION_FILE_SUBMISSION on an unknown class PKP\\\\submissionFile\\\\SubmissionFile\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to method build\\(\\) on an unknown class PKP\\\\stageAssignment\\\\StageAssignmentDAO\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to method getId\\(\\) on an unknown class PKP\\\\submission\\\\Submission\\.$#"
+			count: 6
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to method getId\\(\\) on an unknown class PKP\\\\user\\\\User\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method author\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method decision\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 4
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method genre\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Application\\.$#"
+			count: 6
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Services\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method getDAO\\(\\) on an unknown class PKP\\\\db\\\\DAORegistry\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method submission\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 4
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method submissionFile\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method transaction\\(\\) on an unknown class Illuminate\\\\Support\\\\Facades\\\\DB\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method user\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Call to static method userGroup\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Constant APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\SubmissionGenerator\\:\\:WORKFLOW_STAGE_ID_PRODUCTION is unused\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\SubmissionGenerator\\:\\:createSubmission\\(\\) has invalid return type PKP\\\\submission\\\\Submission\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$stageAssignmentDao contains unknown class PKP\\\\stageAssignment\\\\StageAssignmentDAO\\.$#"
+			count: 1
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Parameter \\$editor of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\SubmissionGenerator\\:\\:recordDecision\\(\\) has invalid type PKP\\\\user\\\\User\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Parameter \\$submission of method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\SubmissionGenerator\\:\\:recordDecision\\(\\) has invalid type PKP\\\\submission\\\\Submission\\.$#"
+			count: 2
+			path: classes/SubmissionGenerator.php
+
+		-
+			message: "#^Access to constant ROLE_ID_AUTHOR on an unknown class PKP\\\\security\\\\Role\\.$#"
+			count: 1
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Call to method getId\\(\\) on an unknown class PKP\\\\user\\\\User\\.$#"
+			count: 1
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class APP\\\\core\\\\Application\\.$#"
+			count: 1
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Call to static method hash\\(\\) on an unknown class PKP\\\\security\\\\PasswordHasher\\.$#"
+			count: 1
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Call to static method user\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 3
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Call to static method userGroup\\(\\) on an unknown class APP\\\\facades\\\\Repo\\.$#"
+			count: 2
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\UserGenerator\\:\\:createUser\\(\\) has invalid return type PKP\\\\user\\\\User\\.$#"
+			count: 2
+			path: classes/UserGenerator.php
+
+		-
+			message: "#^Method APP\\\\plugins\\\\generic\\\\dummyDataGenerator\\\\classes\\\\UserGenerator\\:\\:generateUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: classes/UserGenerator.php
