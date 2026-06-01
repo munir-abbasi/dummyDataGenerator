@@ -131,7 +131,7 @@ abstract class E2ETestCase extends IntegrationTestCase
     protected function cleanup(): array
     {
         return $this->apiRequest('DELETE', '/api/v1/users/cleanup', [
-            'confirm' => true,
+            'confirm' => 'DELETE_ALL_DUMMY_DATA',
         ]);
     }
 

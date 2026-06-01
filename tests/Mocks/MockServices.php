@@ -14,7 +14,7 @@ namespace APP\plugins\generic\dummyDataGenerator\tests\Mocks;
 
 use Mockery;
 use Mockery\MockInterface;
-use PKP\Services\Services;
+use APP\core\Services;
 
 class MockServices
 {

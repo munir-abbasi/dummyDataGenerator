@@ -134,7 +134,14 @@ class DummyDataAPIHandler
         $sections = Repo::section()->getCollector()
             ->filterByContextIds([$contextId])
             ->getMany();
-        $sectionId = $sections->first()?->getId() ?? 1;
+        $section = $sections->first();
+        if (!$section) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => __('plugins.generic.dummyDataGenerator.error.noSections'),
+            ], 400);
+        }
+        $sectionId = $section->getId();
 
         $generator = new SubmissionGenerator($contextId, $sectionId);
         $submissionIds = [];

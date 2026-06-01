@@ -11,8 +11,8 @@
 <version>
 	<application>dummyDataGenerator</application>
 	<type>plugins.generic</type>
-	<release>1.0.0</release>
-	<date>2026-03-26</date>
+	<release>1.1.0</release>
+	<date>2026-06-01</date>
 	<lazy-load>1</lazy-load>
 	<class>DummyDataGeneratorPlugin</class>
 </version>

@@ -53,6 +53,9 @@ msgstr "No submissions found. Please generate submissions first."
 msgid "plugins.generic.dummyDataGenerator.error.noContext"
 msgstr "No context available. Please access this endpoint from a journal context."
 
+msgid "plugins.generic.dummyDataGenerator.error.noSections"
+msgstr "No sections found. Please create at least one section for this journal."
+
 msgid "plugins.generic.dummyDataGenerator.error.invalidCount"
 msgstr "Count must be a valid number between 1 and the maximum allowed."
 
