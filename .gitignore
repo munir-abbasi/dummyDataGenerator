@@ -30,3 +30,6 @@ out_stat.txt
 git_history.txt
 git_status.txt
 *.tar.gz
+
+# Build/release artifacts
+release/
