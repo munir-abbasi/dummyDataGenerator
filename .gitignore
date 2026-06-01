@@ -33,3 +33,15 @@ git_status.txt
 
 # Build/release artifacts
 release/
+
+# Documentation
+/API_DOCUMENTATION.md
+
+# CI/CD and Dev tooling
+/.github/
+/phpstan-baseline.neon
+/phpunit.xml
+/composer.lock
+
+# Tests (dev-only, autoload-dev, never loaded in production)
+/tests/
