@@ -21,3 +21,12 @@ Thumbs.db
 
 # Planning
 .planning/
+
+# Temporary output files
+out.txt
+out_grep_msg.txt
+out_search.txt
+out_stat.txt
+git_history.txt
+git_status.txt
+*.tar.gz
