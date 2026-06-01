@@ -1,7 +1,7 @@
 # Installation Guide
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-03-26
+**Version:** 1.1.0  
+**Last Updated:** 2026-06-01
 
 This guide covers installation of the Dummy Data Generator plugin for OJS 3.5+.
 
@@ -356,6 +356,30 @@ The plugin works with OJS multi-journal installations. Each journal context has 
 ---
 
 ## Upgrade from Previous Versions
+
+### From v1.0.0 to v1.1.0
+
+1. **Backup database:**
+   
+   ```bash
+   mysqldump -u ojs_user -p ojs_database > backup.sql
+   ```
+
+2. **Replace plugin files:**
+   
+   ```bash
+   cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
+   ```
+
+3. **Clear cache:**
+   
+   ```bash
+   php tools/clearCache.php
+   ```
+
+**Breaking Changes:** None  
+**Deprecations:** None  
+**Migration Required:** No
 
 ### From v0.1.0 to v1.0.0
 
