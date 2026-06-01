@@ -17,6 +17,29 @@ use Mockery\MockInterface;
 
 class MockRepo
 {
+    private static ?MockInterface $alias = null;
+
+    /**
+     * Initialize the Repo alias mock (called once per test)
+     *
+     * @return MockInterface The alias mock for APP\facades\Repo
+     */
+    public static function init(): MockInterface
+    {
+        if (self::$alias === null) {
+            self::$alias = Mockery::mock('alias:APP\facades\Repo');
+        }
+        return self::$alias;
+    }
+
+    /**
+     * Reset the alias mock between tests
+     */
+    public static function reset(): void
+    {
+        self::$alias = null;
+    }
+
     /**
      * Create a mock User repository
      *
@@ -28,10 +51,9 @@ class MockRepo
      */
     public static function user(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('user')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('user')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -45,10 +67,9 @@ class MockRepo
      */
     public static function userGroup(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('userGroup')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('userGroup')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -62,10 +83,9 @@ class MockRepo
      */
     public static function submission(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('submission')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('submission')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -75,10 +95,9 @@ class MockRepo
      */
     public static function submissionFile(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('submissionFile')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('submissionFile')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -92,10 +111,9 @@ class MockRepo
      */
     public static function issue(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('issue')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('issue')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -105,10 +123,9 @@ class MockRepo
      */
     public static function publication(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('publication')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('publication')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -118,10 +135,9 @@ class MockRepo
      */
     public static function decision(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('decision')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('decision')->andReturn($mock);
+        return $mock;
     }
 
     /**
@@ -131,10 +147,9 @@ class MockRepo
      */
     public static function author(): MockInterface
     {
-        return Mockery::mock('APP\facades\Repo')
-            ->shouldReceive('author')
-            ->andReturnSelf()
-            ->getMock();
+        $mock = Mockery::mock();
+        self::init()->shouldReceive('author')->andReturn($mock);
+        return $mock;
     }
 
     /**

@@ -19,8 +19,6 @@ namespace APP\plugins\generic\dummyDataGenerator\classes;
 use APP\core\Application;
 use APP\facades\Repo;
 use PKP\issue\Issue;
-use PKP\publication\Publication;
-use PKP\db\DAORegistry;
 use Illuminate\Support\Facades\DB;
 
 class IssueGenerator
@@ -152,47 +150,17 @@ class IssueGenerator
             throw new \RuntimeException('Issue not found: ' . $issueId);
         }
 
-        try {
-            // Try using Repo::issue()->publish() first (if available)
-            if (method_exists(Repo::issue(), 'publish')) {
-                Repo::issue()->publish($issue);
-            } else {
-                // Fallback: Use IssueDAO to publish
-                $this->publishIssueViaDAO($issueId);
-            }
-        } catch (\Exception $e) {
-            error_log('DummyDataGenerator: Issue publish failed, trying DAO method: ' . $e->getMessage());
-            $this->publishIssueViaDAO($issueId);
-        }
-    }
+        Repo::issue()->updateCurrent($this->contextId, $issue);
 
-    /**
-     * Publish issue using IssueDAO (fallback method)
-     *
-     * @param int $issueId Issue ID
-     */
-    private function publishIssueViaDAO(int $issueId): void
-    {
-        /** @var \APP\issue\IssueDAO $issueDao */
-        $issueDao = DAORegistry::getDAO('IssueDAO');
-        
-        // Set as current issue for the journal
-        $issueDao->updateCurrentIssue($this->contextId, $issueId);
-        
-        // Update issue publication date
-        $issue = Repo::issue()->get($issueId);
-        if ($issue) {
-            Repo::issue()->edit($issue, [
-                'datePublished' => Application::get()->getCurrentDate(),
-                'current' => 1,
-            ]);
-        }
-        
-        // Update all scheduled publications in this issue to published status
+        Repo::issue()->edit($issue, [
+            'datePublished' => Application::get()->getCurrentDate(),
+            'current' => 1,
+        ]);
+
         $publications = Repo::publication()->getCollector()
             ->filterByIssueIds([$issueId])
             ->getMany();
-        
+
         foreach ($publications as $publication) {
             Repo::publication()->edit($publication, [
                 'status' => \PKP\submission\Submission::STATUS_PUBLISHED,

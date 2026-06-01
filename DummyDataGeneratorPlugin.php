@@ -59,10 +59,7 @@ class DummyDataGeneratorPlugin extends GenericPlugin
         $success = parent::register($category, $path, $mainContextId);
 
         if ($success && $this->getEnabled($mainContextId)) {
-            // Only register API routes if we have a valid context
-            if ($mainContextId !== null) {
-                $this->registerAPIHandler();
-            }
+            $this->registerAPIHandler();
         }
 
         return $success;
@@ -74,14 +71,12 @@ class DummyDataGeneratorPlugin extends GenericPlugin
      */
     private function registerAPIHandler(): void
     {
-        // Register custom API handler that extends PKPUserController
         Hook::add('APIHandler::endpoints::users', function (string $hookName, array $args): bool {
             $apiController = $args[0];
             $apiHandler = $args[1];
 
             $controller = new DummyDataAPIHandler($this);
-            
-            // Add our custom routes to the existing handler
+
             $apiHandler->addRoute(
                 'POST',
                 'generate-users',
@@ -136,6 +131,6 @@ class DummyDataGeneratorPlugin extends GenericPlugin
 }
 
 // For backwards compatibility -- expect this to be removed approx. OJS/OMP/OPS 3.6
-if (!PKP_STRICT_MODE) {
+if (defined('PKP_STRICT_MODE') && !PKP_STRICT_MODE) {
     class_alias('\APP\plugins\generic\dummyDataGenerator\DummyDataGeneratorPlugin', '\DummyDataGeneratorPlugin');
 }

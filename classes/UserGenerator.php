@@ -20,7 +20,7 @@ use APP\core\Application;
 use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\user\User;
-use PKP\security\PasswordHasher;
+use PKP\security\Validation;
 
 class UserGenerator
 {
@@ -79,7 +79,7 @@ class UserGenerator
         $user->setFamilyName($faker->getFamilyName(), $primaryLocale);
 
         // Hash password using PKP security
-        $user->setPassword(PasswordHasher::hash(self::DEFAULT_PASSWORD));
+        $user->setPassword(Validation::encryptCredentials($user->getUsername(), self::DEFAULT_PASSWORD));
         $user->setMustChangePassword(0);
 
         // Insert user into database

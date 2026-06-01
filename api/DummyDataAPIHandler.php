@@ -23,7 +23,6 @@ use APP\plugins\generic\dummyDataGenerator\classes\SubmissionGenerator;
 use APP\plugins\generic\dummyDataGenerator\classes\IssueGenerator;
 use APP\plugins\generic\dummyDataGenerator\classes\DataTracker;
 use APP\facades\Repo;
-use PKP\handler\APIHandler;
 use PKP\security\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -55,7 +54,7 @@ class DummyDataAPIHandler
         );
 
         if ($count === false) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.invalidCount'),
             ], 400);
@@ -64,7 +63,7 @@ class DummyDataAPIHandler
         $context = Application::get()->getRequest()->getContext();
 
         if (!$context) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noContext'),
             ], 400);
@@ -79,7 +78,7 @@ class DummyDataAPIHandler
         $tracker = new DataTracker();
         $tracker->trackUsers($userIds, $context);
 
-        return response()->json([
+        return new JsonResponse([
             'success' => true,
             'created' => count($userIds),
             'userIds' => $userIds,
@@ -103,7 +102,7 @@ class DummyDataAPIHandler
         );
 
         if ($count === false) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.invalidCount'),
             ], 400);
@@ -112,7 +111,7 @@ class DummyDataAPIHandler
         $context = Application::get()->getRequest()->getContext();
 
         if (!$context) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noContext'),
             ], 400);
@@ -125,7 +124,7 @@ class DummyDataAPIHandler
         $authorIds = $tracker->getTrackedUsers($context);
 
         if (empty($authorIds)) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noAuthors'),
             ], 400);
@@ -150,7 +149,7 @@ class DummyDataAPIHandler
         // Track for cleanup
         $tracker->trackSubmissions($submissionIds, $context);
 
-        return response()->json([
+        return new JsonResponse([
             'success' => true,
             'created' => count($submissionIds),
             'submissionIds' => $submissionIds,
@@ -169,7 +168,7 @@ class DummyDataAPIHandler
         $context = Application::get()->getRequest()->getContext();
 
         if (!$context) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noContext'),
             ], 400);
@@ -182,7 +181,7 @@ class DummyDataAPIHandler
         $submissionIds = $tracker->getTrackedSubmissions($context);
 
         if (empty($submissionIds)) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noSubmissions'),
             ], 400);
@@ -196,14 +195,14 @@ class DummyDataAPIHandler
             // Track issue
             $tracker->trackIssues([$issueId], $context);
 
-            return response()->json([
+            return new JsonResponse([
                 'success' => true,
                 'issueId' => $issueId,
                 'submissionsPublished' => count($submissionIds),
                 'message' => __('plugins.generic.dummyDataGenerator.success.issueCreated'),
             ]);
         } catch (\Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.issueCreationFailed', ['error' => $e->getMessage()]),
             ], 500);
@@ -221,7 +220,7 @@ class DummyDataAPIHandler
         $context = Application::get()->getRequest()->getContext();
 
         if (!$context) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noContext'),
             ], 400);
@@ -230,10 +229,9 @@ class DummyDataAPIHandler
         // Require explicit confirmation for cleanup
         $confirm = $request->input('confirm');
         if ($confirm !== 'DELETE_ALL_DUMMY_DATA') {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.confirmationRequired'),
-                'requiredConfirm' => 'DELETE_ALL_DUMMY_DATA',
             ], 400);
         }
 
@@ -242,13 +240,13 @@ class DummyDataAPIHandler
         try {
             $deleted = $tracker->cleanup($context);
 
-            return response()->json([
+            return new JsonResponse([
                 'success' => true,
                 'deleted' => $deleted,
                 'message' => __('plugins.generic.dummyDataGenerator.success.cleanup'),
             ]);
         } catch (\Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.cleanupFailed', ['error' => $e->getMessage()]),
             ], 500);

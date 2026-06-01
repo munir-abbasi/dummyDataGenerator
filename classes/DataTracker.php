@@ -160,8 +160,11 @@ class DataTracker
         $issueIds = $this->getTrackedIssues($context);
         foreach ($issueIds as $issueId) {
             try {
-                Repo::issue()->delete($issueId);
-                $deleted['issues']++;
+                $issue = Repo::issue()->get($issueId);
+                if ($issue) {
+                    Repo::issue()->delete($issue);
+                    $deleted['issues']++;
+                }
             } catch (\Exception $e) {
                 error_log("DummyDataGenerator: Failed to delete issue {$issueId}: " . $e->getMessage());
             }
@@ -171,8 +174,11 @@ class DataTracker
         $submissionIds = $this->getTrackedSubmissions($context);
         foreach ($submissionIds as $submissionId) {
             try {
-                Repo::submission()->delete($submissionId);
-                $deleted['submissions']++;
+                $submission = Repo::submission()->get($submissionId);
+                if ($submission) {
+                    Repo::submission()->delete($submission);
+                    $deleted['submissions']++;
+                }
             } catch (\Exception $e) {
                 error_log("DummyDataGenerator: Failed to delete submission {$submissionId}: " . $e->getMessage());
             }
@@ -182,8 +188,11 @@ class DataTracker
         $userIds = $this->getTrackedUsers($context);
         foreach ($userIds as $userId) {
             try {
-                Repo::user()->delete($userId);
-                $deleted['users']++;
+                $user = Repo::user()->get($userId);
+                if ($user) {
+                    Repo::user()->delete($user);
+                    $deleted['users']++;
+                }
             } catch (\Exception $e) {
                 error_log("DummyDataGenerator: Failed to delete user {$userId}: " . $e->getMessage());
             }

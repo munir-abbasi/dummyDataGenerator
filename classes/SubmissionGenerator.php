@@ -21,7 +21,6 @@ use APP\core\Services;
 use APP\facades\Repo;
 use PKP\submission\Submission;
 use PKP\submissionFile\SubmissionFile;
-use PKP\author\Author;
 use PKP\db\DAORegistry;
 use PKP\decision\Decision;
 use PKP\security\Role;
@@ -38,7 +37,6 @@ class SubmissionGenerator
     private const WORKFLOW_STAGE_ID_SUBMISSION = 1;
     private const WORKFLOW_STAGE_ID_EXTERNAL_REVIEW = 3;
     private const WORKFLOW_STAGE_ID_EDITING = 4;
-    private const WORKFLOW_STAGE_ID_PRODUCTION = 5;
 
     private Faker $faker;
     private int $contextId;
@@ -205,9 +203,6 @@ class SubmissionGenerator
      */
     private function createStageAssignment(int $submissionId, int $authorId): void
     {
-        /** @var \PKP\stageAssignment\StageAssignmentDAO $stageAssignmentDao */
-        $stageAssignmentDao = DAORegistry::getDAO('StageAssignmentDAO');
-
         // Get author user group
         $userGroups = Repo::userGroup()->getCollector()
             ->filterByContextIds([$this->contextId])
@@ -220,11 +215,11 @@ class SubmissionGenerator
             throw new \RuntimeException('Author user group not found');
         }
 
-        // Assign author to submission stage using verified build() method
-        $stageAssignmentDao->build(
+        // Assign author to submission stage
+        Repo::stageAssignment()->build(
             $submissionId,
-            $authorId,
-            $userGroupId
+            $userGroupId,
+            $authorId
         );
     }
 
@@ -290,8 +285,6 @@ class SubmissionGenerator
 
     /**
      * Record editorial decision
-     * Uses verified Repo::decision() API
-     * Verified from: https://docs.pkp.sfu.ca/dev/documentation/en/decisions
      *
      * @param Submission $submission
      * @param int $decisionType Decision constant
@@ -300,13 +293,6 @@ class SubmissionGenerator
      */
     private function recordDecision(Submission $submission, int $decisionType, User $editor, int $stageId): void
     {
-        $context = Application::get()->getRequest()->getContext();
-
-        if (!$context) {
-            error_log('DummyDataGenerator: No context available for decision recording');
-            return;
-        }
-
         $decisionData = [
             'decision' => $decisionType,
             'dateDecided' => Application::get()->getCurrentDate(),
@@ -316,40 +302,24 @@ class SubmissionGenerator
         ];
 
         try {
-            // Validate the decision using verified Repo::decision()->validate()
-            $decisionTypeObj = Repo::decision()->getDecisionType($decisionType);
-            
-            $errors = Repo::decision()->validate(
-                $decisionData,
-                $decisionTypeObj,
-                $submission,
-                $context
-            );
-
-            if (empty($errors)) {
-                $decision = Repo::decision()->newDataObject($decisionData);
-                Repo::decision()->add($decision);
-            } else {
-                error_log('DummyDataGenerator: Decision validation failed: ' . json_encode($errors));
-            }
+            $decision = Repo::decision()->newDataObject($decisionData);
+            Repo::decision()->add($decision);
         } catch (\Exception $e) {
             error_log('DummyDataGenerator: Failed to record decision: ' . $e->getMessage());
-            // Continue without failing - decision recording is optional for dummy data
         }
     }
 
     /**
      * Get default genre ID for article text
-     * Uses verified Repo::genre() API
      *
      * @return int Genre ID
      */
     private function getDefaultGenreId(): int
     {
-        $genres = Repo::genre()->getCollector()
-            ->filterByContextIds([$this->contextId])
-            ->getMany();
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $genres = $genreDao->getByContextId($this->contextId);
+        $genre = $genres->next();
 
-        return $genres->first()?->getId() ?? 1;
+        return $genre ? $genre->getId() : 1;
     }
 }
