@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-06-01
+
+### Fixed
+
+- **Section validation:** Submission generation no longer crashes when the journal has no sections defined; returns a descriptive 400 error instead
+- **E2E cleanup confirmation:** Fixed confirmation token format (now uses `DELETE_ALL_DUMMY_DATA` string to match production API contract)
+- **MockServices namespace:** Corrected from `PKP\Services\Services` to `APP\core\Services` for OJS 3.5+ compatibility
+
+### Added
+
+- New locale key `plugins.generic.dummyDataGenerator.error.noSections` for section-missing error message
+
+### Changed
+
+- **Version bump:** 1.0.0 → 1.1.0
+
+---
+
 ## [1.0.0] - 2026-03-26
 
 ### Added
@@ -135,14 +153,39 @@ Superseded by v1.0.0 with comprehensive testing, documentation, and error handli
 
 ## Version Support
 
-| Version | PHP  | OJS  | Status         | End of Support |
-| ------- | ---- | ---- | -------------- | -------------- |
-| 1.0.0   | 8.2+ | 3.5+ | [x] Active     | TBD            |
-| 0.1.0   | 8.2+ | 3.5+ | [ ] Deprecated | 2026-03-26     |
+| Version | PHP  | OJS  | Status           | End of Support |
+| ------- | ---- | ---- | ---------------- | -------------- |
+| 1.1.0   | 8.2+ | 3.5+ | [x] Active       | TBD            |
+| 1.0.0   | 8.2+ | 3.5+ | [ ] Maintained   | TBD            |
+| 0.1.0   | 8.2+ | 3.5+ | [ ] Deprecated   | 2026-03-26     |
 
 ---
 
 ## Upgrade Guide
+
+### From 1.0.0 to 1.1.0
+
+1. **Backup database:**
+   
+   ```bash
+   mysqldump -u ojs_user -p ojs_database > backup.sql
+   ```
+
+2. **Replace plugin files:**
+   
+   ```bash
+   cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
+   ```
+
+3. **Clear cache and re-enable:**
+   
+   ```bash
+   php tools/clearCache.php
+   ```
+
+**Breaking Changes:** None  
+**Deprecations:** None  
+**Migration Required:** No
 
 ### From 0.1.0 to 1.0.0
 
@@ -184,6 +227,20 @@ Superseded by v1.0.0 with comprehensive testing, documentation, and error handli
 
 ## Release Notes
 
+### v1.1.0 Maintenance Release
+
+**Theme:** Stability & Compatibility
+
+This release addresses runtime defects discovered in v1.0.0:
+
+- ✅ Section validation prevents crashes on misconfigured journals
+- ✅ E2E test confirmation token aligned with production API contract
+- ✅ MockServices namespace fixed for OJS 3.5+ compatibility
+- ✅ New descriptive locale key for section-missing errors
+
+**Recommended For:** All v1.0.0 users  
+**Upgrade Path:** File replacement only — no breaking changes
+
 ### v1.0.0 Production Release
 
 **Theme:** Production Ready
@@ -216,13 +273,13 @@ This release marks the first production-ready version of the Dummy Data Generato
 
 ## Future Roadmap
 
-### v1.1.0 (Planned)
+### v1.1.0 (Released 2026-06-01)
 
-- [ ] Rate limiting (5-minute cooldown)
-- [ ] Improved transaction scope
-- [ ] Decision validation enhancements
-- [ ] Increased test coverage
-- [ ] GitHub Actions CI/CD
+- [x] Section validation with descriptive error response
+- [x] E2E cleanup confirmation token fix
+- [x] MockServices namespace correction
+- [ ] Rate limiting (5-minute cooldown) — carried forward
+- [ ] GitHub Actions CI/CD — carried forward
 
 ### v1.2.0 (Planned)
 
@@ -264,4 +321,4 @@ For full contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-*Last updated: 2026-03-26*
+*Last updated: 2026-06-01*
