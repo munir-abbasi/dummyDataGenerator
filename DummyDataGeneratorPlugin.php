@@ -72,9 +72,7 @@ class DummyDataGeneratorPlugin extends GenericPlugin
     private function registerAPIHandler(): void
     {
         Hook::add('APIHandler::endpoints::users', function (string $hookName, array $args): bool {
-            $apiController = $args[0];
             $apiHandler = $args[1];
-
             $controller = new DummyDataAPIHandler($this);
 
             $apiHandler->addRoute(

@@ -72,8 +72,13 @@ class UserGenerator
         $user->setEmail($faker->generateEmail($index));
 
         // Set name in primary locale
-        $site = Application::get()->getRequest()->getSite();
-        $primaryLocale = $site->getPrimaryLocale();
+        // Handle both web and CLI contexts gracefully
+        $request = Application::get()->getRequest();
+        if ($request !== null) {
+            $primaryLocale = $request->getSite()->getPrimaryLocale();
+        } else {
+            $primaryLocale = \PKP\facades\Locale::getLocale();
+        }
 
         $user->setGivenName($faker->getGivenName(), $primaryLocale);
         $user->setFamilyName($faker->getFamilyName(), $primaryLocale);
@@ -81,6 +86,9 @@ class UserGenerator
         // Hash password using PKP security
         $user->setPassword(Validation::encryptCredentials($user->getUsername(), self::DEFAULT_PASSWORD));
         $user->setMustChangePassword(0);
+
+        // Set date registered (required field without default in some DB modes)
+        $user->setDateRegistered(date('Y-m-d H:i:s'));
 
         // Insert user into database
         $userId = Repo::user()->add($user);
@@ -107,18 +115,14 @@ class UserGenerator
     private function assignAuthorRole(int $userId, int $contextId): void
     {
         try {
-            // Get author user groups for context
-            $userGroups = Repo::userGroup()->getCollector()
-                ->filterByContextIds([$contextId])
-                ->filterByRoleIds([Role::ROLE_ID_AUTHOR])
-                ->getMany();
+            // Get author user groups for context using verified API
+            $userGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
 
             // Assign user to all author groups
             foreach ($userGroups as $userGroup) {
                 Repo::userGroup()->assignUserToGroup(
                     $userId,
-                    $userGroup->getId(),
-                    $contextId
+                    $userGroup->getId()
                 );
             }
         } catch (\Exception $e) {

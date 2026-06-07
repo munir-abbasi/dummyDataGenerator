@@ -34,8 +34,15 @@ git_status.txt
 # Build/release artifacts
 release/
 
-# Documentation
+# Documentation (auto-generated, not part of distribution)
 /API_DOCUMENTATION.md
+/plugin-specific-prompt.md
+
+# CLI development scripts (generated during local testing)
+generate.php
+debug*.php
+gen_*.php
+check_*.php
 
 # CI/CD and Dev tooling
 /.github/

@@ -62,6 +62,9 @@ msgstr "Count must be a valid number between 1 and the maximum allowed."
 msgid "plugins.generic.dummyDataGenerator.error.confirmationRequired"
 msgstr "Confirmation required. Please set 'confirm' parameter to 'DELETE_ALL_DUMMY_DATA'."
 
+msgid "plugins.generic.dummyDataGenerator.error.rateLimited"
+msgstr "Rate limited. Please wait {$seconds} seconds before making another request."
+
 msgid "plugins.generic.dummyDataGenerator.error.cleanupFailed"
 msgstr "Cleanup failed: {$error}"
 

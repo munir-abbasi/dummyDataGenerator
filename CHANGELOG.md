@@ -14,10 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Section validation:** Submission generation no longer crashes when the journal has no sections defined; returns a descriptive 400 error instead
 - **E2E cleanup confirmation:** Fixed confirmation token format (now uses `DELETE_ALL_DUMMY_DATA` string to match production API contract)
 - **MockServices namespace:** Corrected from `PKP\Services\Services` to `APP\core\Services` for OJS 3.5+ compatibility
+- **CLI compatibility — UserGenerator:** Added null-safe locale resolution via `getRequest()` check, explicit `setDateRegistered()` for strict DB modes, and fixed userGroup API from `getCollector()` → `getByRoleIds()`
+- **CLI compatibility — SubmissionGenerator:** Added `getPrimaryLocale()` helper with null-safe fallback, null-safe `getRequest()->getUser()` for decision recording
+- **CLI compatibility — IssueGenerator:** Added `getPrimaryLocale()` helper with null-safe fallback
+- **CLI compatibility — Faker:** Unique email generation via `uniqid()` hash to prevent duplicate key errors on re-runs
+- **Plugin loading:** Changed `version.xml` lazy-load from `1` to `0` for reliable route registration
 
 ### Added
 
 - New locale key `plugins.generic.dummyDataGenerator.error.noSections` for section-missing error message
+- **Rate limiting:** 30-second cooldown between generation requests (cleanup exempt) to prevent abuse
+- **Production environment warning:** Logs warning when data generation or cleanup is requested in production
+- **Audit logging:** Logs successful generation and cleanup operations with context and counts
+- **API documentation:** Complete API reference in `API_DOCUMENTATION.md`
+- **Test scaffolding:** PHPUnit configuration, bootstrap, and unit/integration test files for all core classes
+- **CLI/development documentation:** [`ADVANCED_USAGE.md`](ADVANCED_USAGE.md) with complete CLI workaround guidance, database schema reference, PDO generation script, and Docker/Podman integration notes
 
 ### Changed
 
@@ -81,15 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API_DOCUMENTATION.md - Complete API reference
 - CHANGELOG.md - Version history (this file)
 - CONTRIBUTING.md - Contribution guidelines
-- Codebase documentation (7 documents in `.planning/codebase/`)
 
 #### Testing
 
-- Unit tests for all generator classes
-- Integration tests for API endpoints
-- E2E tests for complete workflows
-- Mock objects for PKP services
+- Unit tests for Faker and DataTracker classes
+- Integration test scaffolding for API endpoints and generators
 - PHPUnit configuration with coverage reporting
+- Test bootstrap with OJS environment detection
 
 #### Development Tools
 
@@ -250,8 +259,7 @@ This release marks the first production-ready version of the Dummy Data Generato
 - ✅ Comprehensive error handling
 - ✅ Database transactions for data integrity
 - ✅ Complete documentation suite
-- ✅ Full test coverage (Unit, Integration, E2E)
-- ✅ CI/CD pipeline with GitHub Actions
+- ✅ Test scaffolding with unit and integration tests
 - ✅ Security best practices
 - ✅ Input validation and sanitization
 - ✅ Reversible data generation

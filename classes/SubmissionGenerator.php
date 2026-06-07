@@ -93,8 +93,7 @@ class SubmissionGenerator
      */
     private function createSubmission(int $authorId): Submission
     {
-        $site = Application::get()->getRequest()->getSite();
-        $primaryLocale = $site->getPrimaryLocale();
+        $primaryLocale = $this->getPrimaryLocale();
 
         $submission = Repo::submission()->newDataObject([
             'contextId' => $this->contextId,
@@ -155,7 +154,7 @@ class SubmissionGenerator
             'submissionId' => $submissionId,
             'uploaderUserId' => $authorId,
             'name' => [
-                Application::get()->getRequest()->getSite()->getPrimaryLocale() => 'manuscript.txt'
+                $this->getPrimaryLocale() => 'manuscript.txt'
             ],
             'genreId' => $this->getDefaultGenreId(),
         ]);
@@ -178,8 +177,7 @@ class SubmissionGenerator
             throw new \RuntimeException('Author user not found: ' . $authorId);
         }
         
-        $site = Application::get()->getRequest()->getSite();
-        $primaryLocale = $site->getPrimaryLocale();
+        $primaryLocale = $this->getPrimaryLocale();
 
         $author = Repo::author()->newDataObject([
             'submissionId' => $submissionId,
@@ -203,11 +201,8 @@ class SubmissionGenerator
      */
     private function createStageAssignment(int $submissionId, int $authorId): void
     {
-        // Get author user group
-        $userGroups = Repo::userGroup()->getCollector()
-            ->filterByContextIds([$this->contextId])
-            ->filterByRoleIds([Role::ROLE_ID_AUTHOR])
-            ->getMany();
+        // Get author user group using verified API
+        $userGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $this->contextId);
 
         $userGroupId = $userGroups->first()?->getId();
         
@@ -243,7 +238,15 @@ class SubmissionGenerator
         }
 
         // Get admin or manager user for decision recording
-        $user = Application::get()->getRequest()->getUser();
+        $user = null;
+        try {
+            $request = Application::get()->getRequest();
+            if ($request !== null) {
+                $user = $request->getUser();
+            }
+        } catch (\Exception $e) {
+            // CLI mode - no request available
+        }
 
         if (!$user) {
             // Get admin user for decision recording
@@ -307,6 +310,24 @@ class SubmissionGenerator
         } catch (\Exception $e) {
             error_log('DummyDataGenerator: Failed to record decision: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get primary locale string, handling both web and CLI contexts
+     *
+     * @return string Primary locale code (e.g. 'en_US')
+     */
+    private function getPrimaryLocale(): string
+    {
+        $request = Application::get()->getRequest();
+        if ($request !== null) {
+            try {
+                return $request->getSite()->getPrimaryLocale();
+            } catch (\Exception $e) {
+                // Fall through to fallback
+            }
+        }
+        return \PKP\facades\Locale::getLocale();
     }
 
     /**

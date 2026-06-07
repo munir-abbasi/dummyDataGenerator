@@ -105,6 +105,9 @@ This plugin creates real database records in the configured database. It is **no
 ### Workflow Behavior
 This plugin does not execute the full interactive editorial workflow as a human editor would. Instead, the plugin applies editorial decisions programmatically to simulate progression (e.g., bypassing standard peer review assignments). Note that this is strictly for testing and development, and does not claim full parity with the normal editorial UI flow.
 
+### CLI vs Web Request Context
+This plugin's API endpoints work through the normal OJS web request cycle. From CLI, OJS Repo classes internally access `$request->getContext()` which returns `null` outside a web request. The generator classes have been hardened with null-safe fallbacks for CLI use, but **data tracking and cleanup may not work from CLI**. See `ADVANCED_USAGE.md` for the complete CLI workaround guide.
+
 ### Cleanup Safety
 The `cleanup` endpoint specifically targets and deletes *only* the data tracked by this plugin within the current journal context. It employs a strict confirmation query parameter for safety.
 
@@ -112,14 +115,19 @@ The `cleanup` endpoint specifically targets and deletes *only* the data tracked 
 
 ## Testing
 
-The plugin includes PHPUnit tests ensuring that the custom API handler and tracking logic behave as expected.
+The plugin includes PHPUnit tests for the core classes (Faker, DataTracker, UserGenerator, SubmissionGenerator, IssueGenerator) and integration tests for the API handler.
 
 To run tests locally within the plugin directory:
 ```bash
 composer install --dev
 composer test
 ```
-*(Coverage includes the route handlers, submission/issue generators, and data persistence layers.)*
+
+**Test suites:**
+- `Unit` — Pure unit tests (Faker, DataTracker)
+- `Integration` — Tests requiring OJS environment (generators, API handler)
+
+**Note:** Integration tests require a running OJS 3.5+ installation with database access. Unit tests can run standalone after `composer install --dev`.
 
 ---
 

@@ -32,11 +32,57 @@ class DummyDataAPIHandler
     private DummyDataGeneratorPlugin $plugin;
 
     /**
+     * Rate limiting: cooldown between requests in seconds
+     */
+    private const RATE_LIMIT_COOLDOWN = 30;
+
+    /**
+     * Setting key for last request timestamp
+     */
+    private const RATE_LIMIT_SETTING_KEY = 'dummyData_lastRequest';
+
+    /**
      * Constructor
      */
     public function __construct(DummyDataGeneratorPlugin $plugin)
     {
         $this->plugin = $plugin;
+    }
+
+    /**
+     * Check rate limiting for the current context
+     *
+     * @param \PKP\context\Context $context
+     * @return string|null Error message if rate limited, null if OK
+     */
+    private function checkRateLimit(\PKP\context\Context $context): ?string
+    {
+        $lastRequest = $context->getData(self::RATE_LIMIT_SETTING_KEY);
+        if ($lastRequest && (time() - (int) $lastRequest) < self::RATE_LIMIT_COOLDOWN) {
+            $remaining = self::RATE_LIMIT_COOLDOWN - (time() - (int) $lastRequest);
+            return __('plugins.generic.dummyDataGenerator.error.rateLimited', ['seconds' => $remaining]);
+        }
+        return null;
+    }
+
+    /**
+     * Update rate limit timestamp after successful request
+     *
+     * @param \PKP\context\Context $context
+     */
+    private function updateRateLimit(\PKP\context\Context $context): void
+    {
+        $context->updateSetting(self::RATE_LIMIT_SETTING_KEY, (string) time(), 'string');
+    }
+
+    /**
+     * Check if running in production environment
+     *
+     * @return bool True if production environment detected
+     */
+    private function isProductionEnvironment(): bool
+    {
+        return defined('APP_ENV') && APP_ENV === 'production';
     }
 
     /**
@@ -69,6 +115,20 @@ class DummyDataAPIHandler
             ], 400);
         }
 
+        // Production environment warning
+        if ($this->isProductionEnvironment()) {
+            error_log('DummyDataGenerator: WARNING - Data generation requested in production environment');
+        }
+
+        // Rate limiting check
+        $rateLimitError = $this->checkRateLimit($context);
+        if ($rateLimitError !== null) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $rateLimitError,
+            ], 429);
+        }
+
         $contextId = $context->getId();
 
         $generator = new UserGenerator();
@@ -77,6 +137,12 @@ class DummyDataAPIHandler
         // Track for cleanup
         $tracker = new DataTracker();
         $tracker->trackUsers($userIds, $context);
+
+        // Update rate limit
+        $this->updateRateLimit($context);
+
+        // Audit log
+        error_log('DummyDataGenerator: Generated ' . count($userIds) . ' users in context ' . $contextId);
 
         return new JsonResponse([
             'success' => true,
@@ -115,6 +181,20 @@ class DummyDataAPIHandler
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noContext'),
             ], 400);
+        }
+
+        // Production environment warning
+        if ($this->isProductionEnvironment()) {
+            error_log('DummyDataGenerator: WARNING - Submission generation requested in production environment');
+        }
+
+        // Rate limiting check
+        $rateLimitError = $this->checkRateLimit($context);
+        if ($rateLimitError !== null) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $rateLimitError,
+            ], 429);
         }
 
         $contextId = $context->getId();
@@ -156,6 +236,12 @@ class DummyDataAPIHandler
         // Track for cleanup
         $tracker->trackSubmissions($submissionIds, $context);
 
+        // Update rate limit
+        $this->updateRateLimit($context);
+
+        // Audit log
+        error_log('DummyDataGenerator: Generated ' . count($submissionIds) . ' submissions in context ' . $contextId);
+
         return new JsonResponse([
             'success' => true,
             'created' => count($submissionIds),
@@ -181,6 +267,20 @@ class DummyDataAPIHandler
             ], 400);
         }
 
+        // Production environment warning
+        if ($this->isProductionEnvironment()) {
+            error_log('DummyDataGenerator: WARNING - Issue generation requested in production environment');
+        }
+
+        // Rate limiting check
+        $rateLimitError = $this->checkRateLimit($context);
+        if ($rateLimitError !== null) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $rateLimitError,
+            ], 429);
+        }
+
         $contextId = $context->getId();
 
         // Get tracked submissions
@@ -201,6 +301,12 @@ class DummyDataAPIHandler
 
             // Track issue
             $tracker->trackIssues([$issueId], $context);
+
+            // Update rate limit
+            $this->updateRateLimit($context);
+
+            // Audit log
+            error_log('DummyDataGenerator: Generated issue ' . $issueId . ' with ' . count($submissionIds) . ' submissions in context ' . $contextId);
 
             return new JsonResponse([
                 'success' => true,
@@ -233,6 +339,13 @@ class DummyDataAPIHandler
             ], 400);
         }
 
+        // Production environment warning
+        if ($this->isProductionEnvironment()) {
+            error_log('DummyDataGenerator: WARNING - Cleanup requested in production environment');
+        }
+
+        // Note: Cleanup is exempt from rate limiting to allow immediate data removal
+
         // Require explicit confirmation for cleanup
         $confirm = $request->input('confirm');
         if ($confirm !== 'DELETE_ALL_DUMMY_DATA') {
@@ -246,6 +359,9 @@ class DummyDataAPIHandler
 
         try {
             $deleted = $tracker->cleanup($context);
+
+            // Audit log
+            error_log('DummyDataGenerator: Cleanup completed in context ' . $context->getId() . ' — deleted ' . $deleted['users'] . ' users, ' . $deleted['submissions'] . ' submissions, ' . $deleted['issues'] . ' issues');
 
             return new JsonResponse([
                 'success' => true,

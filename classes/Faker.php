@@ -79,7 +79,7 @@ class Faker
      */
     public function generateEmail(int $index): string
     {
-        return 'dummy.user.' . $index . '@example.com';
+        return 'dummy.user.' . $index . '_' . substr(md5(uniqid()), 0, 6) . '@example.com';
     }
 
     /**

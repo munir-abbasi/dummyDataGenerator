@@ -71,8 +71,7 @@ class IssueGenerator
      */
     private function createIssue(): Issue
     {
-        $site = Application::get()->getRequest()->getSite();
-        $primaryLocale = $site->getPrimaryLocale();
+        $primaryLocale = $this->getPrimaryLocale();
 
         // Generate issue metadata
         $year = date('Y');
@@ -132,6 +131,24 @@ class IssueGenerator
             'issueId' => $issueId,
             'status' => \PKP\submission\Submission::STATUS_SCHEDULED,
         ]);
+    }
+
+    /**
+     * Get primary locale string, handling both web and CLI contexts
+     *
+     * @return string Primary locale code (e.g. 'en_US')
+     */
+    private function getPrimaryLocale(): string
+    {
+        $request = Application::get()->getRequest();
+        if ($request !== null) {
+            try {
+                return $request->getSite()->getPrimaryLocale();
+            } catch (\Exception $e) {
+                // Fall through to fallback
+            }
+        }
+        return \PKP\facades\Locale::getLocale();
     }
 
     /**

@@ -108,6 +108,45 @@ Feature suggestions are welcome! Please create an issue with:
 
 4. **Enable plugin in OJS**
 
+### CLI Development Considerations
+
+This plugin was designed for both web API and CLI usage, but OJS has key limitations from CLI:
+
+- **No request context:** `Application::get()->getRequest()->getContext()` returns `null` from CLI
+- **No user session:** `$request->getUser()` returns `null` from CLI
+- **No router:** `$request->getRouter()` returns `null` from CLI
+
+When developing features that must work from CLI (e.g., automated test scripts, CI/CD pipelines), follow these patterns:
+
+**Safe locale resolution:**
+```php
+$request = Application::get()->getRequest();
+if ($request !== null) {
+    $primaryLocale = $request->getSite()->getPrimaryLocale();
+} else {
+    $primaryLocale = \PKP\facades\Locale::getLocale();
+}
+```
+
+**Safe user retrieval:**
+```php
+try {
+    $request = Application::get()->getRequest();
+    $user = $request !== null ? $request->getUser() : null;
+} catch (\Exception $e) {
+    $user = null;
+}
+```
+
+**Database operations from CLI:**
+- `Repo::user()->add()` works from CLI (tested)
+- `Repo::submission()->add()` works from CLI (tested)
+- `$context->updateSetting()` may fail from CLI — use Laravel's `DB::connection()` instead
+- `Repo::userGroup()->getByRoleIds()` works from CLI (tested)
+- See `ADVANCED_USAGE.md` for the full CLI workaround guide
+
+> **Note on integration tests:** Tests for the API handler and DataTracker require the full OJS web request cycle (they depend on `getRequest()->getContext()`, `updateSetting()`, and the router). These will **not** work from CLI. Only pure unit tests (Faker, DataTracker internals) can be run from CLI.
+
 ### Running Tests
 
 ```bash
@@ -155,14 +194,25 @@ composer cs-fix
 
 ```
 dummyDataGenerator/
-├── classes/           # Core business logic
-├── api/               # API handlers
-├── tests/             # Test suite
-│   ├── Unit/         # Unit tests
-│   ├── Integration/  # Integration tests
-│   └── E2E/          # E2E tests
-├── locale/            # Translations
-└── docs/              # Documentation
+├── classes/              # Core business logic
+│   ├── UserGenerator.php
+│   ├── SubmissionGenerator.php
+│   ├── IssueGenerator.php
+│   ├── DataTracker.php
+│   └── Faker.php
+├── api/                  # API handlers
+│   └── DummyDataAPIHandler.php
+├── tests/                # Test suite
+│   ├── Unit/            # Unit tests
+│   └── Integration/     # Integration tests
+├── locale/               # Translations
+│   └── en/              # English strings
+├── DummyDataGeneratorPlugin.php
+├── version.xml
+├── composer.json
+├── phpunit.xml.dist
+├── ADVANCED_USAGE.md     # CLI/Docker workaround guide
+└── TESTING_CHECKLIST.md  # Manual testing checklist
 ```
 
 ### Naming Conventions

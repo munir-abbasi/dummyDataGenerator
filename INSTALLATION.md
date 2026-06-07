@@ -435,4 +435,4 @@ If you encounter issues not covered in this guide:
 
 ---
 
-**Next Steps:** After successful installation, proceed to [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for usage instructions.
+**Next Steps:** After successful installation, proceed to [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for usage instructions. Also see [README.md](README.md) for a quick overview.
