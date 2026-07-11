@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace APP\plugins\generic\dummyDataGenerator\classes;
 
 use APP\core\Application;
-use APP\core\Services;
 use APP\facades\Repo;
 use PKP\submission\Submission;
 use PKP\submissionFile\SubmissionFile;
@@ -109,7 +108,7 @@ class SubmissionGenerator
 
     /**
      * Add submission file (placeholder manuscript)
-     * Uses verified Services::get('file') and Repo::submissionFile()
+     * Uses verified app()->get('file') and Repo::submissionFile()
      *
      * @param int $submissionId Submission ID
      * @param int $authorId Author user ID (uploader)
@@ -133,7 +132,7 @@ class SubmissionGenerator
 
         try {
             // Upload file using verified file service
-            $fileId = Services::get('file')->add($tempPath, 'submissions/' . $submissionId);
+            $fileId = app()->get('file')->add($tempPath, 'submissions/' . $submissionId);
         } catch (\Exception $e) {
             error_log("DummyDataGenerator: File upload failed for submission {$submissionId}: " . $e->getMessage());
             if (file_exists($tempPath)) {

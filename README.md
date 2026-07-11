@@ -16,7 +16,7 @@ A generic plugin that extends the OJS API to generate dummy users, submissions, 
 
 ## Requirements
 
-* Open Journal Systems (OJS) 3.5.x or newer
+* Open Journal Systems (OJS) 3.5.0.5 or newer
 * PHP 8.2+
 * Journal Manager or Site Administrator access
 

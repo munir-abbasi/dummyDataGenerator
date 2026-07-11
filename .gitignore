@@ -37,6 +37,11 @@ release/
 # Documentation (auto-generated, not part of distribution)
 /API_DOCUMENTATION.md
 /plugin-specific-prompt.md
+/Plugin-engineer-task.md
+
+# Agent/workspace artifacts
+/.omo/
+/omo.lock
 
 # CLI development scripts (generated during local testing)
 generate.php

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0.0] - 2026-07-11
+
+### Fixed
+
+- **`Services::get('file')` → `app()->get('file')`:** The `APP\core\Services` class is removed in OJS 3.5.0.5. Replaced with the DI container `app()->get('file')` call, which returns the identical `PKPFileService` singleton via Laravel's service container. The `add($from, $to)` signature and return type are unchanged. See `SubmissionGenerator.php`.
+
+### Changed
+
+- **Version bump:** 1.1.0 → 2.0.0.0
+- `version.xml` release updated for OJS 3.5.0.5 compatibility
+
+### Removed
+
+- `use APP\core\Services` import from `SubmissionGenerator.php` (class no longer exists in OJS 3.5.0.5)
+
+---
+
 ## [1.1.0] - 2026-06-01
 
 ### Fixed
@@ -162,15 +179,40 @@ Superseded by v1.0.0 with comprehensive testing, documentation, and error handli
 
 ## Version Support
 
-| Version | PHP  | OJS  | Status           | End of Support |
-| ------- | ---- | ---- | ---------------- | -------------- |
-| 1.1.0   | 8.2+ | 3.5+ | [x] Active       | TBD            |
-| 1.0.0   | 8.2+ | 3.5+ | [ ] Maintained   | TBD            |
-| 0.1.0   | 8.2+ | 3.5+ | [ ] Deprecated   | 2026-03-26     |
+| Version | PHP  | OJS      | Status           | End of Support |
+| ------- | ---- | -------- | ---------------- | -------------- |
+| 2.0.0.0 | 8.2+ | 3.5.0.5+ | [x] Active       | TBD            |
+| 1.1.0   | 8.2+ | 3.5+     | [x] Maintained   | 2026-07-11     |
+| 1.0.0   | 8.2+ | 3.5+     | [ ] Deprecated   | 2026-07-11     |
+| 0.1.0   | 8.2+ | 3.5+     | [ ] Deprecated   | 2026-03-26     |
 
 ---
 
 ## Upgrade Guide
+
+### From 1.1.0 to 2.0.0.0
+
+1. **Backup database:**
+   
+   ```bash
+   mysqldump -u ojs_user -p ojs_database > backup.sql
+   ```
+
+2. **Replace plugin files:**
+   
+   ```bash
+   cp -r dummyDataGenerator /path/to/ojs/plugins/generic/
+   ```
+
+3. **Clear cache and re-enable:**
+   
+   ```bash
+   php tools/clearCache.php
+   ```
+
+**Breaking Changes:** None — database schema unchanged, settings preserved, Repo API calls identical  
+**Deprecations:** None  
+**Migration Required:** No — file replacement only
 
 ### From 1.0.0 to 1.1.0
 
@@ -236,6 +278,19 @@ Superseded by v1.0.0 with comprehensive testing, documentation, and error handli
 
 ## Release Notes
 
+### v2.0.0.0 OJS 3.5.0.5 Compatibility Release
+
+**Theme:** API Compatibility
+
+This release addresses the removal of the `Services` class in OJS 3.5.0.5:
+
+- ✅ `Services::get('file')` replaced with `app()->get('file')` — identical `PKPFileService` singleton, same `add($from, $to)` signature
+- ✅ All other `Repo::*()` calls pre-verified against OJS 3.5.0.5 source
+- ✅ Locale format (`locale/en/default.po`) already compatible with OJS 3.5 PO-based system
+
+**Recommended For:** All users on OJS 3.5.0.5+  
+**Upgrade Path:** File replacement only — no breaking changes, no database migration
+
 ### v1.1.0 Maintenance Release
 
 **Theme:** Stability & Compatibility
@@ -289,7 +344,12 @@ This release marks the first production-ready version of the Dummy Data Generato
 - [ ] Rate limiting (5-minute cooldown) — carried forward
 - [ ] GitHub Actions CI/CD — carried forward
 
-### v1.2.0 (Planned)
+### v2.0.0.0 (Released 2026-07-11)
+
+- [x] `Services::get('file')` → `app()->get('file')` replacement for OJS 3.5.0.5
+- [x] Version bump and documentation updates
+
+### v2.1.0 (Planned)
 
 - [ ] PDF file generation option
 - [ ] Improved genre selection
@@ -297,7 +357,7 @@ This release marks the first production-ready version of the Dummy Data Generato
 - [ ] Additional translations
 - [ ] Community translation support
 
-### v2.0.0 (Future)
+### v3.0.0 (Future)
 
 - [ ] OJS 3.6+ compatibility
 - [ ] Background job support
