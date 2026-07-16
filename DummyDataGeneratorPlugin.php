@@ -19,7 +19,6 @@ namespace APP\plugins\generic\dummyDataGenerator;
 
 use APP\core\Application;
 use APP\plugins\generic\dummyDataGenerator\api\DummyDataAPIHandler;
-use APP\template\TemplateManager;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\security\Role;

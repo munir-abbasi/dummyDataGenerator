@@ -23,7 +23,6 @@ use APP\plugins\generic\dummyDataGenerator\classes\SubmissionGenerator;
 use APP\plugins\generic\dummyDataGenerator\classes\IssueGenerator;
 use APP\plugins\generic\dummyDataGenerator\classes\DataTracker;
 use APP\facades\Repo;
-use PKP\security\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -86,6 +85,17 @@ class DummyDataAPIHandler
     }
 
     /**
+     * Return a production-safe response for blocked generation endpoints.
+     */
+    private function productionGenerationBlockedResponse(): JsonResponse
+    {
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Dummy data generation is disabled in production environments.',
+        ], 403);
+    }
+
+    /**
      * Generate dummy users
      *
      * @param Request $request
@@ -118,6 +128,7 @@ class DummyDataAPIHandler
         // Production environment warning
         if ($this->isProductionEnvironment()) {
             error_log('DummyDataGenerator: WARNING - Data generation requested in production environment');
+            return $this->productionGenerationBlockedResponse();
         }
 
         // Rate limiting check
@@ -186,6 +197,7 @@ class DummyDataAPIHandler
         // Production environment warning
         if ($this->isProductionEnvironment()) {
             error_log('DummyDataGenerator: WARNING - Submission generation requested in production environment');
+            return $this->productionGenerationBlockedResponse();
         }
 
         // Rate limiting check
@@ -270,6 +282,7 @@ class DummyDataAPIHandler
         // Production environment warning
         if ($this->isProductionEnvironment()) {
             error_log('DummyDataGenerator: WARNING - Issue generation requested in production environment');
+            return $this->productionGenerationBlockedResponse();
         }
 
         // Rate limiting check

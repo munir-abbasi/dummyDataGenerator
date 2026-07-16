@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace APP\plugins\generic\dummyDataGenerator\classes;
 
-use APP\core\Application;
 use APP\facades\Repo;
 
 class DataTracker
