@@ -68,6 +68,9 @@ msgstr "Rate limited. Please wait {$seconds} seconds before making another reque
 msgid "plugins.generic.dummyDataGenerator.error.cleanupFailed"
 msgstr "Cleanup failed: {$error}"
 
+msgid "plugins.generic.dummyDataGenerator.error.partialCleanup"
+msgstr "Partial cleanup: some entities could not be deleted and remain tracked for retry."
+
 msgid "plugins.generic.dummyDataGenerator.error.issueCreationFailed"
 msgstr "Failed to create issue: {$error}"
 

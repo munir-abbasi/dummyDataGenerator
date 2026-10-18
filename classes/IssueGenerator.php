@@ -106,8 +106,7 @@ class IssueGenerator
         $submission = Repo::submission()->get($submissionId);
 
         if (!$submission) {
-            error_log("DummyDataGenerator: Submission not found: {$submissionId}");
-            return;
+            throw new \InvalidArgumentException("Submission not found: {$submissionId}");
         }
 
         // Get or create publication for submission

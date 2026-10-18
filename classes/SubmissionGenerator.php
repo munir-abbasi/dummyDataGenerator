@@ -117,27 +117,24 @@ class SubmissionGenerator
     {
         // Create placeholder file content
         $tempPath = tempnam(sys_get_temp_dir(), 'dummy_submission_');
-        
+
         if ($tempPath === false) {
             throw new \RuntimeException('Failed to create temporary file');
         }
-        
-        $content = "Dummy Submission Content\n\n";
-        $content .= "Title: " . $this->faker->generateTitle() . "\n";
-        $content .= "Abstract: " . $this->faker->generateAbstract() . "\n";
-        
-        if (file_put_contents($tempPath, $content) === false) {
-            throw new \RuntimeException('Failed to write temporary file content');
-        }
 
         try {
+            $content = "Dummy Submission Content\n\n";
+            $content .= "Title: " . $this->faker->generateTitle() . "\n";
+            $content .= "Abstract: " . $this->faker->generateAbstract() . "\n";
+
+            if (file_put_contents($tempPath, $content) === false) {
+                throw new \RuntimeException('Failed to write temporary file content');
+            }
+
             // Upload file using verified file service
             $fileId = app()->get('file')->add($tempPath, 'submissions/' . $submissionId);
         } catch (\Exception $e) {
             error_log("DummyDataGenerator: File upload failed for submission {$submissionId}: " . $e->getMessage());
-            if (file_exists($tempPath)) {
-                unlink($tempPath);
-            }
             throw new \RuntimeException('Failed to upload file: ' . $e->getMessage(), 0, $e);
         } finally {
             // Always clean up temp file

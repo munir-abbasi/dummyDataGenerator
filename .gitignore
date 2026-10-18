@@ -2,6 +2,7 @@
 /vendor/
 /coverage/
 /.phpunit.cache/
+/.phpunit.result.cache
 /phpunit.xml.local
 /PRE_SUBMISSION_CHECKLIST.md
 
@@ -35,13 +36,14 @@ git_status.txt
 release/
 
 # Documentation (auto-generated, not part of distribution)
-/API_DOCUMENTATION.md
 /plugin-specific-prompt.md
 /Plugin-engineer-task.md
 
 # Agent/workspace artifacts
 /.omo/
 /omo.lock
+/AGENTS.md
+/CLAUDE.md
 
 # CLI development scripts (generated during local testing)
 generate.php
@@ -54,6 +56,3 @@ check_*.php
 /phpstan-baseline.neon
 /phpunit.xml
 /composer.lock
-
-# Tests (dev-only, autoload-dev, never loaded in production)
-/tests/

@@ -37,7 +37,6 @@
   "scripts": {
     "test": "phpunit --testsuite=Unit",
     "test:integration": "phpunit --testsuite=Integration",
-    "test:e2e": "phpunit --testsuite=E2E",
     "test:coverage": "phpunit --coverage-html=coverage/html",
     "phpstan": "phpstan analyse --level=max classes/ api/"
   }

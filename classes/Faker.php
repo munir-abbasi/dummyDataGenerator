@@ -136,16 +136,17 @@ class Faker
             "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis."
         ];
 
-        // Select 4-6 random sentences
-        $numSentences = random_int(4, 6);
-        $selected = array_rand($sentences, $numSentences);
+        // Always begin with standard Lorem Ipsum opening sentence, followed by 3-5 random sentences
+        $remainingPool = array_slice($sentences, 1);
+        $numAdditional = random_int(3, 5);
+        $selectedKeys = (array) array_rand($remainingPool, $numAdditional);
 
-        $abstract = '';
-        foreach ((array)$selected as $index) {
-            $abstract .= $sentences[$index] . ' ';
+        $selectedSentences = [$sentences[0]];
+        foreach ($selectedKeys as $key) {
+            $selectedSentences[] = $remainingPool[$key];
         }
 
-        return trim($abstract);
+        return implode(' ', $selectedSentences);
     }
 
     /**

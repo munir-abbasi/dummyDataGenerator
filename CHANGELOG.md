@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0.2] - 2026-10-18
+
+### Fixed
+
+- **Resilient cleanup and tracking retention:** `DataTracker::cleanup()` now retains failed entity IDs in context settings rather than wiping them, enabling retries when individual deletions fail.
+- **Pre-generation capacity checks:** Verified tracking entity limits prior to record generation in `generateUsers`, `generateSubmissions`, and `generateIssue` to prevent database records from being created without tracking.
+- **Partial cleanup error reporting:** `DummyDataAPIHandler::cleanup()` now returns HTTP 500 with detailed failure statistics and error messages if any entity fails deletion.
+- **Atomic issue generation:** `IssueGenerator` validates all submission IDs and aborts transaction on missing records to avoid publishing partial or empty issues.
+- **Sequential author selection:** Added `array_values()` around deduplicated arrays in `DataTracker` to eliminate non-consecutive keys and prevent undefined key fatal errors during author selection.
+- **Safe temporary manuscript cleanup:** Wrapped manuscript generation in `SubmissionGenerator` with `try ... finally` to ensure temporary files are unlinked even if content writes fail.
+- **Consistent API exception handling:** Wrapped generation operations in `generateUsers` and `generateSubmissions` with structured 500 JSON error handling, preserving tracking for partially generated items.
+- **Repository tracking and test configuration:** Restored tracking for `API_DOCUMENTATION.md` and `tests/` directory, fixed PHPUnit 10 `verbose` configuration warning, corrected limit thresholds and randomized assertions in unit tests.
+
+---
+
 ## [2.0.0.0] - 2026-07-11
 
 ### Fixed

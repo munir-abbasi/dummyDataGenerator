@@ -31,6 +31,31 @@ class DataTracker
     private const MAX_TRACKED_ENTITIES = 1000;
 
     /**
+     * Check if context has tracking capacity for new entities before creation
+     *
+     * @param \PKP\context\Context $context Context
+     * @param string $type Entity type ('users', 'submissions', 'issues')
+     * @param int $count Number of entities to be added
+     * @throws \InvalidArgumentException if entity type is unknown
+     * @throws \RuntimeException if tracking capacity would be exceeded
+     */
+    public function checkCapacity(\PKP\context\Context $context, string $type, int $count): void
+    {
+        $existing = match ($type) {
+            'users' => $this->getTrackedUsers($context),
+            'submissions' => $this->getTrackedSubmissions($context),
+            'issues' => $this->getTrackedIssues($context),
+            default => throw new \InvalidArgumentException("Invalid tracking entity type: {$type}"),
+        };
+
+        if (count($existing) + $count > self::MAX_TRACKED_ENTITIES) {
+            throw new \RuntimeException(
+                'Maximum tracked ' . $type . ' limit reached (' . self::MAX_TRACKED_ENTITIES . ')'
+            );
+        }
+    }
+
+    /**
      * Track created users
      *
      * @param array $userIds User IDs to track
@@ -50,7 +75,7 @@ class DataTracker
 
         $context->updateSetting(
             self::TRACKING_SETTING_PREFIX . 'users',
-            array_unique($merged),
+            array_values(array_unique($merged)),
             'object'
         );
     }
@@ -64,7 +89,7 @@ class DataTracker
     public function getTrackedUsers(\PKP\context\Context $context): array
     {
         $userIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'users');
-        return is_array($userIds) ? $userIds : [];
+        return is_array($userIds) ? array_values($userIds) : [];
     }
 
     /**
@@ -87,7 +112,7 @@ class DataTracker
 
         $context->updateSetting(
             self::TRACKING_SETTING_PREFIX . 'submissions',
-            array_unique($merged),
+            array_values(array_unique($merged)),
             'object'
         );
     }
@@ -101,7 +126,7 @@ class DataTracker
     public function getTrackedSubmissions(\PKP\context\Context $context): array
     {
         $submissionIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'submissions');
-        return is_array($submissionIds) ? $submissionIds : [];
+        return is_array($submissionIds) ? array_values($submissionIds) : [];
     }
 
     /**
@@ -124,7 +149,7 @@ class DataTracker
 
         $context->updateSetting(
             self::TRACKING_SETTING_PREFIX . 'issues',
-            array_unique($merged),
+            array_values(array_unique($merged)),
             'object'
         );
     }
@@ -138,14 +163,14 @@ class DataTracker
     public function getTrackedIssues(\PKP\context\Context $context): array
     {
         $issueIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'issues');
-        return is_array($issueIds) ? $issueIds : [];
+        return is_array($issueIds) ? array_values($issueIds) : [];
     }
 
     /**
-     * Delete all tracked entities
+     * Delete all tracked entities with safe tracking preservation on failure
      *
      * @param \PKP\context\Context $context Context
-     * @return array Deletion statistics
+     * @return array Deletion statistics and error details
      */
     public function cleanup(\PKP\context\Context $context): array
     {
@@ -154,8 +179,49 @@ class DataTracker
             'submissions' => 0,
             'issues' => 0,
         ];
+        $remaining = [
+            'users' => [],
+            'submissions' => [],
+            'issues' => [],
+        ];
+        $errors = [
+            'users' => [],
+            'submissions' => [],
+            'issues' => [],
+        ];
 
-        // Delete tracked issues first (they reference submissions)
+        // 1. Delete tracked issues first (they reference submissions)
+        $this->cleanupIssues($context, $deleted, $remaining, $errors);
+
+        // 2. Delete tracked submissions
+        $this->cleanupSubmissions($context, $deleted, $remaining, $errors);
+
+        // 3. Delete tracked users
+        $this->cleanupUsers($context, $deleted, $remaining, $errors);
+
+        // Persist tracking updates: clear setting if all gone, or keep remaining failed IDs
+        $this->updateTrackingAfterCleanup($context, 'issues', $remaining['issues']);
+        $this->updateTrackingAfterCleanup($context, 'submissions', $remaining['submissions']);
+        $this->updateTrackingAfterCleanup($context, 'users', $remaining['users']);
+
+        return [
+            'users' => $deleted['users'],
+            'submissions' => $deleted['submissions'],
+            'issues' => $deleted['issues'],
+            'failed' => [
+                'users' => count($remaining['users']),
+                'submissions' => count($remaining['submissions']),
+                'issues' => count($remaining['issues']),
+            ],
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Delete tracked issues
+     */
+    private function cleanupIssues(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    {
         $issueIds = $this->getTrackedIssues($context);
         foreach ($issueIds as $issueId) {
             try {
@@ -165,11 +231,18 @@ class DataTracker
                     $deleted['issues']++;
                 }
             } catch (\Exception $e) {
+                $remaining['issues'][] = $issueId;
+                $errors['issues'][] = "Failed to delete issue {$issueId}: " . $e->getMessage();
                 error_log("DummyDataGenerator: Failed to delete issue {$issueId}: " . $e->getMessage());
             }
         }
+    }
 
-        // Delete tracked submissions
+    /**
+     * Delete tracked submissions
+     */
+    private function cleanupSubmissions(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    {
         $submissionIds = $this->getTrackedSubmissions($context);
         foreach ($submissionIds as $submissionId) {
             try {
@@ -179,11 +252,18 @@ class DataTracker
                     $deleted['submissions']++;
                 }
             } catch (\Exception $e) {
+                $remaining['submissions'][] = $submissionId;
+                $errors['submissions'][] = "Failed to delete submission {$submissionId}: " . $e->getMessage();
                 error_log("DummyDataGenerator: Failed to delete submission {$submissionId}: " . $e->getMessage());
             }
         }
+    }
 
-        // Delete tracked users
+    /**
+     * Delete tracked users
+     */
+    private function cleanupUsers(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    {
         $userIds = $this->getTrackedUsers($context);
         foreach ($userIds as $userId) {
             try {
@@ -193,15 +273,23 @@ class DataTracker
                     $deleted['users']++;
                 }
             } catch (\Exception $e) {
+                $remaining['users'][] = $userId;
+                $errors['users'][] = "Failed to delete user {$userId}: " . $e->getMessage();
                 error_log("DummyDataGenerator: Failed to delete user {$userId}: " . $e->getMessage());
             }
         }
+    }
 
-        // Clear tracking settings
-        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'users', null);
-        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'submissions', null);
-        $context->updateSetting(self::TRACKING_SETTING_PREFIX . 'issues', null);
-
-        return $deleted;
+    /**
+     * Update or clear tracking setting depending on remaining un-deleted entities
+     */
+    private function updateTrackingAfterCleanup(\PKP\context\Context $context, string $type, array $remaining): void
+    {
+        $settingKey = self::TRACKING_SETTING_PREFIX . $type;
+        if (empty($remaining)) {
+            $context->updateSetting($settingKey, null);
+        } else {
+            $context->updateSetting($settingKey, array_values($remaining), 'object');
+        }
     }
 }

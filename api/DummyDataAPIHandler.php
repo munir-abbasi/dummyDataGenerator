@@ -142,12 +142,31 @@ class DummyDataAPIHandler
 
         $contextId = $context->getId();
 
-        $generator = new UserGenerator();
-        $userIds = $generator->generateUsers($count, $contextId);
-
-        // Track for cleanup
         $tracker = new DataTracker();
-        $tracker->trackUsers($userIds, $context);
+
+        // Check tracking capacity before generating records
+        try {
+            $tracker->checkCapacity($context, 'users', $count);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+
+        try {
+            $generator = new UserGenerator();
+            $userIds = $generator->generateUsers($count, $contextId);
+
+            // Track for cleanup
+            $tracker->trackUsers($userIds, $context);
+        } catch (\Exception $e) {
+            error_log('DummyDataGenerator: User generation failed in context ' . $contextId . ': ' . $e->getMessage());
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         // Update rate limit
         $this->updateRateLimit($context);
@@ -222,6 +241,16 @@ class DummyDataAPIHandler
             ], 400);
         }
 
+        // Check tracking capacity before generating records
+        try {
+            $tracker->checkCapacity($context, 'submissions', $count);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+
         // Get section
         $sections = Repo::section()->getCollector()
             ->filterByContextIds([$contextId])
@@ -238,15 +267,31 @@ class DummyDataAPIHandler
         $generator = new SubmissionGenerator($contextId, $sectionId);
         $submissionIds = [];
 
-        // Generate submissions, cycling through available authors
-        $authorCount = count($authorIds);
-        for ($i = 0; $i < $count; $i++) {
-            $authorId = $authorIds[$i % $authorCount];
-            $submissionIds[] = $generator->generateSubmission($authorId);
-        }
+        try {
+            // Generate submissions, cycling through available authors
+            $authorCount = count($authorIds);
+            for ($i = 0; $i < $count; $i++) {
+                $authorId = $authorIds[$i % $authorCount];
+                $submissionIds[] = $generator->generateSubmission($authorId);
+            }
 
-        // Track for cleanup
-        $tracker->trackSubmissions($submissionIds, $context);
+            // Track for cleanup
+            $tracker->trackSubmissions($submissionIds, $context);
+        } catch (\Exception $e) {
+            error_log('DummyDataGenerator: Submission generation failed in context ' . $contextId . ': ' . $e->getMessage());
+            // Track partially created submissions to ensure cleanup capability
+            if (!empty($submissionIds)) {
+                try {
+                    $tracker->trackSubmissions($submissionIds, $context);
+                } catch (\Exception $trackingEx) {
+                    error_log('DummyDataGenerator: Failed to track partial submissions: ' . $trackingEx->getMessage());
+                }
+            }
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         // Update rate limit
         $this->updateRateLimit($context);
@@ -304,6 +349,16 @@ class DummyDataAPIHandler
             return new JsonResponse([
                 'success' => false,
                 'error' => __('plugins.generic.dummyDataGenerator.error.noSubmissions'),
+            ], 400);
+        }
+
+        // Check tracking capacity for issues
+        try {
+            $tracker->checkCapacity($context, 'issues', 1);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
             ], 400);
         }
 
@@ -376,9 +431,31 @@ class DummyDataAPIHandler
             // Audit log
             error_log('DummyDataGenerator: Cleanup completed in context ' . $context->getId() . ' — deleted ' . $deleted['users'] . ' users, ' . $deleted['submissions'] . ' submissions, ' . $deleted['issues'] . ' issues');
 
+            $failedCount = ($deleted['failed']['users'] ?? 0)
+                + ($deleted['failed']['submissions'] ?? 0)
+                + ($deleted['failed']['issues'] ?? 0);
+
+            if ($failedCount > 0 || !empty($deleted['errors']['users']) || !empty($deleted['errors']['submissions']) || !empty($deleted['errors']['issues'])) {
+                return new JsonResponse([
+                    'success' => false,
+                    'deleted' => [
+                        'users' => $deleted['users'],
+                        'submissions' => $deleted['submissions'],
+                        'issues' => $deleted['issues'],
+                    ],
+                    'failed' => $deleted['failed'] ?? [],
+                    'errors' => $deleted['errors'] ?? [],
+                    'error' => __('plugins.generic.dummyDataGenerator.error.partialCleanup'),
+                ], 500);
+            }
+
             return new JsonResponse([
                 'success' => true,
-                'deleted' => $deleted,
+                'deleted' => [
+                    'users' => $deleted['users'],
+                    'submissions' => $deleted['submissions'],
+                    'issues' => $deleted['issues'],
+                ],
                 'message' => __('plugins.generic.dummyDataGenerator.success.cleanup'),
             ]);
         } catch (\Exception $e) {

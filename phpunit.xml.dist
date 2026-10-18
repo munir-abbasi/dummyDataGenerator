@@ -4,7 +4,6 @@
     xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
     bootstrap="tests/bootstrap.php"
     colors="true"
-    verbose="true"
     failOnRisky="true"
     failOnWarning="true"
 >
@@ -23,11 +22,4 @@
             <directory suffix=".php">api</directory>
         </include>
     </source>
-
-    <coverage>
-        <report>
-            <html outputDirectory="coverage/html"/>
-            <text outputFile="coverage/coverage.txt" showUncoveredFiles="true"/>
-        </report>
-    </coverage>
 </phpunit>
