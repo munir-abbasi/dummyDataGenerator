@@ -18,6 +18,7 @@ namespace APP\plugins\generic\dummyDataGenerator\classes;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use PKP\core\Core;
 use PKP\submission\Submission;
 use PKP\submissionFile\SubmissionFile;
 use PKP\db\DAORegistry;
@@ -294,7 +295,7 @@ class SubmissionGenerator
     {
         $decisionData = [
             'decision' => $decisionType,
-            'dateDecided' => Application::get()->getCurrentDate(),
+            'dateDecided' => Core::getCurrentDate(),
             'submissionId' => $submission->getId(),
             'editorId' => $editor->getId(),
             'stageId' => $stageId,
@@ -303,8 +304,9 @@ class SubmissionGenerator
         try {
             $decision = Repo::decision()->newDataObject($decisionData);
             Repo::decision()->add($decision);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('DummyDataGenerator: Failed to record decision: ' . $e->getMessage());
+            throw new \RuntimeException('Failed to record editorial decision: ' . $e->getMessage(), 0, $e);
         }
     }
 

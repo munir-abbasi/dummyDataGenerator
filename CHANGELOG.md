@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0.3] - 2026-10-18
+
+### Fixed
+
+- **OJS 3.5 Plugin Settings Persistence (P0):** Replaced non-existent `Context::updateSetting()` calls with canonical OJS Plugin Settings API (`Plugin::getSetting()` and `Plugin::updateSetting()`, with fallback to `PluginRegistry` and `PluginSettingsDAO`). Passed plugin instance to `DataTracker` and updated rate limiting to use plugin settings.
+- **Production Guard Hardening (P0):** Replaced naive `defined('APP_ENV')` check with upstream OJS application container check (`app()->isProduction()`) and `Config::getVar('general', 'app_env', 'production')`, defaulting safely to production when unconfigured. Added test verifying HTTP 403 response on generation requests in production.
+- **Upstream OJS Date API Compatibility (P1):** Replaced non-existent `Application::get()->getCurrentDate()` with upstream `PKP\core\Core::getCurrentDate()` across `SubmissionGenerator` and `IssueGenerator`.
+- **Atomic Author Role Assignment & Error Propagation (P1):** Wrapped `UserGenerator::createUser()` in `DB::transaction()` to ensure failed role assignments roll back database user insertion, and rethrow on failure in `assignAuthorRole()` and `SubmissionGenerator::recordDecision()`.
+- **Nullsafe Request Context Resolution:** Fixed fatal errors when `Application::get()->getRequest()` returns null using nullsafe operator (`?->getContext()`).
+- **Comprehensive Unit & Integration Test Suite:** Updated `DataTrackerTest` and `DummyDataAPIHandlerTest` to verify plugin settings, `Context|int` polymorphism, rate limiting, production blocking, and confirmation validation.
+
+---
+
 ## [2.0.0.2] - 2026-10-18
 
 ### Fixed

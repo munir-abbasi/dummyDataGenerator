@@ -19,6 +19,7 @@ use APP\plugins\generic\dummyDataGenerator\classes\DataTracker;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PKP\context\Context;
+use PKP\plugins\Plugin;
 use PHPUnit\Framework\TestCase;
 
 class DataTrackerTest extends TestCase
@@ -26,10 +27,12 @@ class DataTrackerTest extends TestCase
     use MockeryPHPUnitIntegration;
 
     private DataTracker $tracker;
+    private $plugin;
 
     protected function setUp(): void
     {
-        $this->tracker = new DataTracker();
+        $this->plugin = Mockery::mock(Plugin::class);
+        $this->tracker = new DataTracker($this->plugin);
     }
 
     protected function tearDown(): void
@@ -40,24 +43,40 @@ class DataTrackerTest extends TestCase
     public function test_trackUsers_stores_user_ids(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([]);
-        $context->shouldReceive('updateSetting')
-            ->with('dummyData_users', [1, 2, 3], 'object')
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(1, 'dummyData_users', [1, 2, 3], 'object')
             ->once();
 
         $this->tracker->trackUsers([1, 2, 3], $context);
     }
 
+    public function test_trackUsers_with_int_context_id(): void
+    {
+        $this->plugin->shouldReceive('getSetting')
+            ->with(42, 'dummyData_users')
+            ->andReturn([]);
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(42, 'dummyData_users', [1, 2, 3], 'object')
+            ->once();
+
+        $this->tracker->trackUsers([1, 2, 3], 42);
+    }
+
     public function test_trackUsers_merges_with_existing(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([1, 2]);
-        $context->shouldReceive('updateSetting')
-            ->with('dummyData_users', [1, 2, 3, 4], 'object')
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(1, 'dummyData_users', [1, 2, 3, 4], 'object')
             ->once();
 
         $this->tracker->trackUsers([3, 4], $context);
@@ -66,11 +85,13 @@ class DataTrackerTest extends TestCase
     public function test_trackUsers_deduplicates(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([1, 2]);
-        $context->shouldReceive('updateSetting')
-            ->with('dummyData_users', [1, 2, 3], 'object')
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(1, 'dummyData_users', [1, 2, 3], 'object')
             ->once();
 
         $this->tracker->trackUsers([2, 3], $context);
@@ -83,8 +104,10 @@ class DataTrackerTest extends TestCase
 
         $existingIds = range(1, 999);
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn($existingIds);
 
         $this->tracker->trackUsers([1000, 1001], $context);
@@ -93,8 +116,10 @@ class DataTrackerTest extends TestCase
     public function test_getTrackedUsers_returns_empty_array_when_no_data(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn(null);
 
         $result = $this->tracker->getTrackedUsers($context);
@@ -104,8 +129,10 @@ class DataTrackerTest extends TestCase
     public function test_getTrackedUsers_returns_stored_ids(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([10, 20, 30]);
 
         $result = $this->tracker->getTrackedUsers($context);
@@ -115,11 +142,13 @@ class DataTrackerTest extends TestCase
     public function test_trackSubmissions_stores_submission_ids(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_submissions')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_submissions')
             ->andReturn([]);
-        $context->shouldReceive('updateSetting')
-            ->with('dummyData_submissions', [100, 200], 'object')
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(1, 'dummyData_submissions', [100, 200], 'object')
             ->once();
 
         $this->tracker->trackSubmissions([100, 200], $context);
@@ -132,8 +161,10 @@ class DataTrackerTest extends TestCase
 
         $existingIds = range(1, 999);
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_submissions')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_submissions')
             ->andReturn($existingIds);
 
         $this->tracker->trackSubmissions([1000, 1001], $context);
@@ -142,8 +173,10 @@ class DataTrackerTest extends TestCase
     public function test_getTrackedSubmissions_returns_empty_array_when_no_data(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_submissions')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_submissions')
             ->andReturn(null);
 
         $result = $this->tracker->getTrackedSubmissions($context);
@@ -153,11 +186,13 @@ class DataTrackerTest extends TestCase
     public function test_trackIssues_stores_issue_ids(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_issues')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_issues')
             ->andReturn([]);
-        $context->shouldReceive('updateSetting')
-            ->with('dummyData_issues', [500], 'object')
+        $this->plugin->shouldReceive('updateSetting')
+            ->with(1, 'dummyData_issues', [500], 'object')
             ->once();
 
         $this->tracker->trackIssues([500], $context);
@@ -166,8 +201,10 @@ class DataTrackerTest extends TestCase
     public function test_getTrackedIssues_returns_empty_array_when_no_data(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_issues')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_issues')
             ->andReturn(null);
 
         $result = $this->tracker->getTrackedIssues($context);
@@ -177,8 +214,10 @@ class DataTrackerTest extends TestCase
     public function test_checkCapacity_allows_when_within_limit(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([1, 2, 3]);
 
         // Should not throw
@@ -192,8 +231,10 @@ class DataTrackerTest extends TestCase
         $this->expectExceptionMessage('Maximum tracked users limit reached (1000)');
 
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn(range(1, 995));
 
         $this->tracker->checkCapacity($context, 'users', 10);
@@ -205,14 +246,18 @@ class DataTrackerTest extends TestCase
         $this->expectExceptionMessage('Invalid tracking entity type: invalid_type');
 
         $context = Mockery::mock(Context::class);
+        $context->shouldReceive('getId')->andReturn(1);
+
         $this->tracker->checkCapacity($context, 'invalid_type', 5);
     }
 
     public function test_getTrackedUsers_returns_reindexed_sequential_array(): void
     {
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')
-            ->with('dummyData_users')
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')
+            ->with(1, 'dummyData_users')
             ->andReturn([2 => 10, 5 => 20]);
 
         $result = $this->tracker->getTrackedUsers($context);
@@ -233,12 +278,14 @@ class DataTrackerTest extends TestCase
         }
 
         $context = Mockery::mock(Context::class);
-        $context->shouldReceive('getData')->with('dummyData_users')->andReturn([]);
-        $context->shouldReceive('getData')->with('dummyData_submissions')->andReturn([]);
-        $context->shouldReceive('getData')->with('dummyData_issues')->andReturn([]);
-        $context->shouldReceive('updateSetting')->with('dummyData_users', null)->once();
-        $context->shouldReceive('updateSetting')->with('dummyData_submissions', null)->once();
-        $context->shouldReceive('updateSetting')->with('dummyData_issues', null)->once();
+        $context->shouldReceive('getId')->andReturn(1);
+
+        $this->plugin->shouldReceive('getSetting')->with(1, 'dummyData_users')->andReturn([]);
+        $this->plugin->shouldReceive('getSetting')->with(1, 'dummyData_submissions')->andReturn([]);
+        $this->plugin->shouldReceive('getSetting')->with(1, 'dummyData_issues')->andReturn([]);
+        $this->plugin->shouldReceive('updateSetting')->with(1, 'dummyData_users', null, null)->once();
+        $this->plugin->shouldReceive('updateSetting')->with(1, 'dummyData_submissions', null, null)->once();
+        $this->plugin->shouldReceive('updateSetting')->with(1, 'dummyData_issues', null, null)->once();
 
         $result = $this->tracker->cleanup($context);
 

@@ -21,6 +21,7 @@ use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\user\User;
 use PKP\security\Validation;
+use Illuminate\Support\Facades\DB;
 
 class UserGenerator
 {
@@ -62,47 +63,49 @@ class UserGenerator
      */
     private function createUser(Faker $faker, int $contextId, int $index): ?User
     {
-        // Create user object using verified Repo::user() API
-        $user = Repo::user()->newDataObject();
+        return DB::transaction(function () use ($faker, $contextId, $index) {
+            // Create user object using verified Repo::user() API
+            $user = Repo::user()->newDataObject();
 
-        // Set unique username
-        $user->setUsername($faker->generateUsername($index));
+            // Set unique username
+            $user->setUsername($faker->generateUsername($index));
 
-        // Set unique email
-        $user->setEmail($faker->generateEmail($index));
+            // Set unique email
+            $user->setEmail($faker->generateEmail($index));
 
-        // Set name in primary locale
-        // Handle both web and CLI contexts gracefully
-        $request = Application::get()->getRequest();
-        if ($request !== null) {
-            $primaryLocale = $request->getSite()->getPrimaryLocale();
-        } else {
-            $primaryLocale = \PKP\facades\Locale::getLocale();
-        }
+            // Set name in primary locale
+            // Handle both web and CLI contexts gracefully
+            $request = Application::get()->getRequest();
+            if ($request !== null) {
+                $primaryLocale = $request->getSite()->getPrimaryLocale();
+            } else {
+                $primaryLocale = \PKP\facades\Locale::getLocale();
+            }
 
-        $user->setGivenName($faker->getGivenName(), $primaryLocale);
-        $user->setFamilyName($faker->getFamilyName(), $primaryLocale);
+            $user->setGivenName($faker->getGivenName(), $primaryLocale);
+            $user->setFamilyName($faker->getFamilyName(), $primaryLocale);
 
-        // Hash password using PKP security
-        $user->setPassword(Validation::encryptCredentials($user->getUsername(), self::DEFAULT_PASSWORD));
-        $user->setMustChangePassword(0);
+            // Hash password using PKP security
+            $user->setPassword(Validation::encryptCredentials($user->getUsername(), self::DEFAULT_PASSWORD));
+            $user->setMustChangePassword(0);
 
-        // Set date registered (required field without default in some DB modes)
-        $user->setDateRegistered(date('Y-m-d H:i:s'));
+            // Set date registered (required field without default in some DB modes)
+            $user->setDateRegistered(date('Y-m-d H:i:s'));
 
-        // Insert user into database
-        $userId = Repo::user()->add($user);
-        $user = Repo::user()->get($userId);
+            // Insert user into database
+            $userId = Repo::user()->add($user);
+            $user = Repo::user()->get($userId);
 
-        if (!$user) {
-            error_log("DummyDataGenerator: Failed to create user {$index}");
-            return null;
-        }
+            if (!$user) {
+                error_log("DummyDataGenerator: Failed to create user {$index}");
+                return null;
+            }
 
-        // Assign author role to user in context
-        $this->assignAuthorRole($user->getId(), $contextId);
+            // Assign author role to user in context
+            $this->assignAuthorRole($user->getId(), $contextId);
 
-        return $user;
+            return $user;
+        });
     }
 
     /**
@@ -114,19 +117,20 @@ class UserGenerator
      */
     private function assignAuthorRole(int $userId, int $contextId): void
     {
-        try {
-            // Get author user groups for context using verified API
-            $userGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
+        // Get author user groups for context using verified API
+        $userGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
 
-            // Assign user to all author groups
-            foreach ($userGroups as $userGroup) {
-                Repo::userGroup()->assignUserToGroup(
-                    $userId,
-                    $userGroup->getId()
-                );
-            }
-        } catch (\Exception $e) {
-            error_log("DummyDataGenerator: Failed to assign author role to user {$userId}: " . $e->getMessage());
+        $assigned = false;
+        foreach ($userGroups as $userGroup) {
+            Repo::userGroup()->assignUserToGroup(
+                $userId,
+                $userGroup->getId()
+            );
+            $assigned = true;
+        }
+
+        if (!$assigned) {
+            throw new \RuntimeException("No author user group found for context {$contextId}");
         }
     }
 

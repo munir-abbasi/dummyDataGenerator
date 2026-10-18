@@ -40,6 +40,10 @@ if (!defined('DUMMY_DATA_STANDALONE_TEST') && !defined('PKP_TEST_ENV')) {
     define('DUMMY_DATA_STANDALONE_TEST', true);
 }
 
+if (defined('DUMMY_DATA_STANDALONE_TEST') && DUMMY_DATA_STANDALONE_TEST) {
+    require_once __DIR__ . '/Stubs/OJSStubs.php';
+}
+
 if (!defined('APP_BASE_URL')) {
     define('APP_BASE_URL', 'http://localhost');
 }

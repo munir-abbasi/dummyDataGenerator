@@ -5,7 +5,7 @@
  * Copyright (c) 2025 Munir Abbasi
  * Distributed under the GNU GPL v3.
  *
- * @brief Track created entities for reversible cleanup
+ * @brief Track created entities for reversible cleanup using OJS Plugin Settings API
  *
  * @author Munir Abbasi <munir@syntaxhouse.com>
  * @link https://github.com/munir-abbasi/dummyDataGenerator
@@ -17,6 +17,10 @@ declare(strict_types=1);
 namespace APP\plugins\generic\dummyDataGenerator\classes;
 
 use APP\facades\Repo;
+use PKP\context\Context;
+use PKP\plugins\Plugin;
+use PKP\plugins\PluginRegistry;
+use PKP\db\DAORegistry;
 
 class DataTracker
 {
@@ -30,21 +34,99 @@ class DataTracker
      */
     private const MAX_TRACKED_ENTITIES = 1000;
 
+    private ?Plugin $plugin;
+
+    /**
+     * Constructor
+     *
+     * @param Plugin|null $plugin Optional plugin instance for settings operations
+     */
+    public function __construct(?Plugin $plugin = null)
+    {
+        $this->plugin = $plugin;
+    }
+
+    /**
+     * Resolve context ID from Context object or integer
+     */
+    private function resolveContextId(Context|int $context): int
+    {
+        return $context instanceof Context ? $context->getId() : (int) $context;
+    }
+
+    /**
+     * Retrieve a setting using OJS Plugin API
+     */
+    private function getSetting(int $contextId, string $name): mixed
+    {
+        if ($this->plugin !== null) {
+            return $this->plugin->getSetting($contextId, $name);
+        }
+
+        if (class_exists(PluginRegistry::class)) {
+            $plugin = PluginRegistry::getPlugin('generic', 'dummyDataGenerator');
+            if ($plugin !== null) {
+                return $plugin->getSetting($contextId, $name);
+            }
+        }
+
+        if (class_exists(DAORegistry::class)) {
+            $dao = DAORegistry::getDAO('PluginSettingsDAO');
+            if ($dao) {
+                return $dao->getSetting($contextId, 'dummyDataGenerator', $name);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Update or delete a setting using OJS Plugin API
+     */
+    private function updateSetting(int $contextId, string $name, mixed $value, ?string $type = null): void
+    {
+        if ($this->plugin !== null) {
+            $this->plugin->updateSetting($contextId, $name, $value, $type);
+            return;
+        }
+
+        if (class_exists(PluginRegistry::class)) {
+            $plugin = PluginRegistry::getPlugin('generic', 'dummyDataGenerator');
+            if ($plugin !== null) {
+                $plugin->updateSetting($contextId, $name, $value, $type);
+                return;
+            }
+        }
+
+        if (class_exists(DAORegistry::class)) {
+            $dao = DAORegistry::getDAO('PluginSettingsDAO');
+            if ($dao) {
+                if ($value === null) {
+                    $dao->deleteSetting($contextId, 'dummyDataGenerator', $name);
+                } else {
+                    $dao->updateSetting($contextId, 'dummyDataGenerator', $name, $value, $type);
+                }
+                return;
+            }
+        }
+    }
+
     /**
      * Check if context has tracking capacity for new entities before creation
      *
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      * @param string $type Entity type ('users', 'submissions', 'issues')
      * @param int $count Number of entities to be added
      * @throws \InvalidArgumentException if entity type is unknown
      * @throws \RuntimeException if tracking capacity would be exceeded
      */
-    public function checkCapacity(\PKP\context\Context $context, string $type, int $count): void
+    public function checkCapacity(Context|int $context, string $type, int $count): void
     {
+        $contextId = $this->resolveContextId($context);
         $existing = match ($type) {
-            'users' => $this->getTrackedUsers($context),
-            'submissions' => $this->getTrackedSubmissions($context),
-            'issues' => $this->getTrackedIssues($context),
+            'users' => $this->getTrackedUsers($contextId),
+            'submissions' => $this->getTrackedSubmissions($contextId),
+            'issues' => $this->getTrackedIssues($contextId),
             default => throw new \InvalidArgumentException("Invalid tracking entity type: {$type}"),
         };
 
@@ -59,21 +141,22 @@ class DataTracker
      * Track created users
      *
      * @param array $userIds User IDs to track
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      */
-    public function trackUsers(array $userIds, \PKP\context\Context $context): void
+    public function trackUsers(array $userIds, Context|int $context): void
     {
-        $existing = $this->getTrackedUsers($context);
+        $contextId = $this->resolveContextId($context);
+        $existing = $this->getTrackedUsers($contextId);
         $merged = array_merge($existing, $userIds);
 
-        // Limit to prevent context settings bloat
         if (count($merged) > self::MAX_TRACKED_ENTITIES) {
             throw new \RuntimeException(
                 'Maximum tracked users limit reached (' . self::MAX_TRACKED_ENTITIES . ')'
             );
         }
 
-        $context->updateSetting(
+        $this->updateSetting(
+            $contextId,
             self::TRACKING_SETTING_PREFIX . 'users',
             array_values(array_unique($merged)),
             'object'
@@ -83,12 +166,13 @@ class DataTracker
     /**
      * Get tracked users
      *
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      * @return array Array of user IDs
      */
-    public function getTrackedUsers(\PKP\context\Context $context): array
+    public function getTrackedUsers(Context|int $context): array
     {
-        $userIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'users');
+        $contextId = $this->resolveContextId($context);
+        $userIds = $this->getSetting($contextId, self::TRACKING_SETTING_PREFIX . 'users');
         return is_array($userIds) ? array_values($userIds) : [];
     }
 
@@ -96,21 +180,22 @@ class DataTracker
      * Track created submissions
      *
      * @param array $submissionIds Submission IDs to track
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      */
-    public function trackSubmissions(array $submissionIds, \PKP\context\Context $context): void
+    public function trackSubmissions(array $submissionIds, Context|int $context): void
     {
-        $existing = $this->getTrackedSubmissions($context);
+        $contextId = $this->resolveContextId($context);
+        $existing = $this->getTrackedSubmissions($contextId);
         $merged = array_merge($existing, $submissionIds);
 
-        // Limit to prevent context settings bloat
         if (count($merged) > self::MAX_TRACKED_ENTITIES) {
             throw new \RuntimeException(
                 'Maximum tracked submissions limit reached (' . self::MAX_TRACKED_ENTITIES . ')'
             );
         }
 
-        $context->updateSetting(
+        $this->updateSetting(
+            $contextId,
             self::TRACKING_SETTING_PREFIX . 'submissions',
             array_values(array_unique($merged)),
             'object'
@@ -120,12 +205,13 @@ class DataTracker
     /**
      * Get tracked submissions
      *
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      * @return array Array of submission IDs
      */
-    public function getTrackedSubmissions(\PKP\context\Context $context): array
+    public function getTrackedSubmissions(Context|int $context): array
     {
-        $submissionIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'submissions');
+        $contextId = $this->resolveContextId($context);
+        $submissionIds = $this->getSetting($contextId, self::TRACKING_SETTING_PREFIX . 'submissions');
         return is_array($submissionIds) ? array_values($submissionIds) : [];
     }
 
@@ -133,21 +219,22 @@ class DataTracker
      * Track created issues
      *
      * @param array $issueIds Issue IDs to track
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      */
-    public function trackIssues(array $issueIds, \PKP\context\Context $context): void
+    public function trackIssues(array $issueIds, Context|int $context): void
     {
-        $existing = $this->getTrackedIssues($context);
+        $contextId = $this->resolveContextId($context);
+        $existing = $this->getTrackedIssues($contextId);
         $merged = array_merge($existing, $issueIds);
 
-        // Limit to prevent context settings bloat
         if (count($merged) > self::MAX_TRACKED_ENTITIES) {
             throw new \RuntimeException(
                 'Maximum tracked issues limit reached (' . self::MAX_TRACKED_ENTITIES . ')'
             );
         }
 
-        $context->updateSetting(
+        $this->updateSetting(
+            $contextId,
             self::TRACKING_SETTING_PREFIX . 'issues',
             array_values(array_unique($merged)),
             'object'
@@ -157,23 +244,25 @@ class DataTracker
     /**
      * Get tracked issues
      *
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      * @return array Array of issue IDs
      */
-    public function getTrackedIssues(\PKP\context\Context $context): array
+    public function getTrackedIssues(Context|int $context): array
     {
-        $issueIds = $context->getData(self::TRACKING_SETTING_PREFIX . 'issues');
+        $contextId = $this->resolveContextId($context);
+        $issueIds = $this->getSetting($contextId, self::TRACKING_SETTING_PREFIX . 'issues');
         return is_array($issueIds) ? array_values($issueIds) : [];
     }
 
     /**
      * Delete all tracked entities with safe tracking preservation on failure
      *
-     * @param \PKP\context\Context $context Context
+     * @param Context|int $context Context or context ID
      * @return array Deletion statistics and error details
      */
-    public function cleanup(\PKP\context\Context $context): array
+    public function cleanup(Context|int $context): array
     {
+        $contextId = $this->resolveContextId($context);
         $deleted = [
             'users' => 0,
             'submissions' => 0,
@@ -191,18 +280,18 @@ class DataTracker
         ];
 
         // 1. Delete tracked issues first (they reference submissions)
-        $this->cleanupIssues($context, $deleted, $remaining, $errors);
+        $this->cleanupIssues($contextId, $deleted, $remaining, $errors);
 
         // 2. Delete tracked submissions
-        $this->cleanupSubmissions($context, $deleted, $remaining, $errors);
+        $this->cleanupSubmissions($contextId, $deleted, $remaining, $errors);
 
         // 3. Delete tracked users
-        $this->cleanupUsers($context, $deleted, $remaining, $errors);
+        $this->cleanupUsers($contextId, $deleted, $remaining, $errors);
 
         // Persist tracking updates: clear setting if all gone, or keep remaining failed IDs
-        $this->updateTrackingAfterCleanup($context, 'issues', $remaining['issues']);
-        $this->updateTrackingAfterCleanup($context, 'submissions', $remaining['submissions']);
-        $this->updateTrackingAfterCleanup($context, 'users', $remaining['users']);
+        $this->updateTrackingAfterCleanup($contextId, 'issues', $remaining['issues']);
+        $this->updateTrackingAfterCleanup($contextId, 'submissions', $remaining['submissions']);
+        $this->updateTrackingAfterCleanup($contextId, 'users', $remaining['users']);
 
         return [
             'users' => $deleted['users'],
@@ -220,9 +309,9 @@ class DataTracker
     /**
      * Delete tracked issues
      */
-    private function cleanupIssues(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    private function cleanupIssues(int $contextId, array &$deleted, array &$remaining, array &$errors): void
     {
-        $issueIds = $this->getTrackedIssues($context);
+        $issueIds = $this->getTrackedIssues($contextId);
         foreach ($issueIds as $issueId) {
             try {
                 $issue = Repo::issue()->get($issueId);
@@ -241,9 +330,9 @@ class DataTracker
     /**
      * Delete tracked submissions
      */
-    private function cleanupSubmissions(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    private function cleanupSubmissions(int $contextId, array &$deleted, array &$remaining, array &$errors): void
     {
-        $submissionIds = $this->getTrackedSubmissions($context);
+        $submissionIds = $this->getTrackedSubmissions($contextId);
         foreach ($submissionIds as $submissionId) {
             try {
                 $submission = Repo::submission()->get($submissionId);
@@ -262,9 +351,9 @@ class DataTracker
     /**
      * Delete tracked users
      */
-    private function cleanupUsers(\PKP\context\Context $context, array &$deleted, array &$remaining, array &$errors): void
+    private function cleanupUsers(int $contextId, array &$deleted, array &$remaining, array &$errors): void
     {
-        $userIds = $this->getTrackedUsers($context);
+        $userIds = $this->getTrackedUsers($contextId);
         foreach ($userIds as $userId) {
             try {
                 $user = Repo::user()->get($userId);
@@ -283,13 +372,13 @@ class DataTracker
     /**
      * Update or clear tracking setting depending on remaining un-deleted entities
      */
-    private function updateTrackingAfterCleanup(\PKP\context\Context $context, string $type, array $remaining): void
+    private function updateTrackingAfterCleanup(int $contextId, string $type, array $remaining): void
     {
         $settingKey = self::TRACKING_SETTING_PREFIX . $type;
         if (empty($remaining)) {
-            $context->updateSetting($settingKey, null);
+            $this->updateSetting($contextId, $settingKey, null);
         } else {
-            $context->updateSetting($settingKey, array_values($remaining), 'object');
+            $this->updateSetting($contextId, $settingKey, array_values($remaining), 'object');
         }
     }
 }

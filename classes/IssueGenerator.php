@@ -18,6 +18,7 @@ namespace APP\plugins\generic\dummyDataGenerator\classes;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use PKP\core\Core;
 use PKP\issue\Issue;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +86,7 @@ class IssueGenerator
             'year' => $year,
             'title' => [$primaryLocale => "Vol. {$volume} No. {$number} ({$year})"],
             'description' => [$primaryLocale => 'Dummy issue generated for testing purposes.'],
-            'datePublished' => Application::get()->getCurrentDate(),
+            'datePublished' => Core::getCurrentDate(),
             'accessStatus' => Issue::ISSUE_ACCESS_OPEN, // Verified constant from OJS source
         ]);
 
@@ -169,7 +170,7 @@ class IssueGenerator
         Repo::issue()->updateCurrent($this->contextId, $issue);
 
         Repo::issue()->edit($issue, [
-            'datePublished' => Application::get()->getCurrentDate(),
+            'datePublished' => Core::getCurrentDate(),
             'current' => 1,
         ]);
 

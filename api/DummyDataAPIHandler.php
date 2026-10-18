@@ -56,7 +56,7 @@ class DummyDataAPIHandler
      */
     private function checkRateLimit(\PKP\context\Context $context): ?string
     {
-        $lastRequest = $context->getData(self::RATE_LIMIT_SETTING_KEY);
+        $lastRequest = $this->plugin->getSetting($context->getId(), self::RATE_LIMIT_SETTING_KEY);
         if ($lastRequest && (time() - (int) $lastRequest) < self::RATE_LIMIT_COOLDOWN) {
             $remaining = self::RATE_LIMIT_COOLDOWN - (time() - (int) $lastRequest);
             return __('plugins.generic.dummyDataGenerator.error.rateLimited', ['seconds' => $remaining]);
@@ -71,17 +71,37 @@ class DummyDataAPIHandler
      */
     private function updateRateLimit(\PKP\context\Context $context): void
     {
-        $context->updateSetting(self::RATE_LIMIT_SETTING_KEY, (string) time(), 'string');
+        $this->plugin->updateSetting($context->getId(), self::RATE_LIMIT_SETTING_KEY, (string) time(), 'string');
     }
 
     /**
      * Check if running in production environment
+     * Uses OJS PKPContainer::isProduction() API and Config::getVar
      *
      * @return bool True if production environment detected
      */
     private function isProductionEnvironment(): bool
     {
-        return defined('APP_ENV') && APP_ENV === 'production';
+        if (defined('DUMMY_DATA_TEST_FORCE_PRODUCTION')) {
+            return (bool) constant('DUMMY_DATA_TEST_FORCE_PRODUCTION');
+        }
+
+        if (function_exists('app')) {
+            try {
+                $container = app();
+                if ($container && method_exists($container, 'isProduction')) {
+                    return $container->isProduction();
+                }
+            } catch (\Throwable $e) {
+                // Fall through to Config check
+            }
+        }
+
+        if (class_exists(\PKP\config\Config::class)) {
+            return \PKP\config\Config::getVar('general', 'app_env', 'production') === 'production';
+        }
+
+        return defined('APP_ENV') ? APP_ENV === 'production' : true;
     }
 
     /**
@@ -116,7 +136,7 @@ class DummyDataAPIHandler
             ], 400);
         }
 
-        $context = Application::get()->getRequest()->getContext();
+        $context = Application::get()->getRequest()?->getContext();
 
         if (!$context) {
             return new JsonResponse([
@@ -142,7 +162,7 @@ class DummyDataAPIHandler
 
         $contextId = $context->getId();
 
-        $tracker = new DataTracker();
+        $tracker = new DataTracker($this->plugin);
 
         // Check tracking capacity before generating records
         try {
@@ -204,7 +224,7 @@ class DummyDataAPIHandler
             ], 400);
         }
 
-        $context = Application::get()->getRequest()->getContext();
+        $context = Application::get()->getRequest()?->getContext();
 
         if (!$context) {
             return new JsonResponse([
@@ -231,7 +251,7 @@ class DummyDataAPIHandler
         $contextId = $context->getId();
 
         // Get available authors (tracked dummy users)
-        $tracker = new DataTracker();
+        $tracker = new DataTracker($this->plugin);
         $authorIds = $tracker->getTrackedUsers($context);
 
         if (empty($authorIds)) {
@@ -315,7 +335,7 @@ class DummyDataAPIHandler
      */
     public function generateIssue(Request $request): JsonResponse
     {
-        $context = Application::get()->getRequest()->getContext();
+        $context = Application::get()->getRequest()?->getContext();
 
         if (!$context) {
             return new JsonResponse([
@@ -342,7 +362,7 @@ class DummyDataAPIHandler
         $contextId = $context->getId();
 
         // Get tracked submissions
-        $tracker = new DataTracker();
+        $tracker = new DataTracker($this->plugin);
         $submissionIds = $tracker->getTrackedSubmissions($context);
 
         if (empty($submissionIds)) {
@@ -398,7 +418,7 @@ class DummyDataAPIHandler
      */
     public function cleanup(Request $request): JsonResponse
     {
-        $context = Application::get()->getRequest()->getContext();
+        $context = Application::get()->getRequest()?->getContext();
 
         if (!$context) {
             return new JsonResponse([
@@ -423,7 +443,7 @@ class DummyDataAPIHandler
             ], 400);
         }
 
-        $tracker = new DataTracker();
+        $tracker = new DataTracker($this->plugin);
 
         try {
             $deleted = $tracker->cleanup($context);
