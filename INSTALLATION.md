@@ -22,24 +22,29 @@ Before installing, ensure you have:
 
 ### Step 1: Download Plugin
 
-**Option A: Clone from GitHub**
+**Option A: Release Tarball (Recommended)**
 
 ```bash
 cd /tmp
-git clone https://github.com/munir-abbasi/dummyDataGenerator.git
+wget https://github.com/munir-abbasi/dummyDataGenerator/releases/download/v2.0.0.3/dummyDataGenerator-2.0.0.3.tar.gz
+tar -xzf dummyDataGenerator-2.0.0.3.tar.gz -C /path/to/ojs/plugins/generic/
 ```
 
-**Option B: Download ZIP**
+**Option B: Clone from GitHub**
+
+```bash
+cd /path/to/ojs/plugins/generic
+git clone https://github.com/munir-abbasi/dummyDataGenerator.git dummyDataGenerator
+```
+
+**Option C: Download Source ZIP**
 
 ```bash
 cd /tmp
-wget https://github.com/munir-abbasi/dummyDataGenerator/archive/refs/heads/main.zip
-unzip main.zip
-mv dummyDataGenerator-main dummyDataGenerator
+wget https://github.com/munir-abbasi/dummyDataGenerator/archive/refs/heads/master.zip
+unzip master.zip
+mv dummyDataGenerator-master /path/to/ojs/plugins/generic/dummyDataGenerator
 ```
-
-**Option C: Manual Copy**
-Copy the `dummyDataGenerator` directory from your local development environment.
 
 ---
 

@@ -261,12 +261,30 @@ DELETE /api/v1/users/cleanup?confirm=DELETE_ALL_DUMMY_DATA
 
 ## Error Codes
 
-| HTTP Code | Meaning                                            |
-|-----------|----------------------------------------------------|
-| 200       | Success                                            |
-| 400       | Bad request (validation error, missing context)     |
-| 429       | Rate limited (30s cooldown between requests)        |
-| 500       | Internal server error (generation/cleanup failed)   |
+| HTTP Code | Meaning                                                 |
+|-----------|---------------------------------------------------------|
+| 200       | Success                                                 |
+| 400       | Bad request (validation error, missing context)          |
+| 403       | Forbidden (generation blocked in production environment) |
+| 429       | Rate limited (30s cooldown between requests)             |
+| 500       | Internal server error (generation/cleanup failed)        |
+
+---
+
+## Production Environment Guard
+
+To prevent accidental generation of test data on live journals, the plugin actively enforces environment checking using the OJS application container (`app()->isProduction()`) and `config.inc.php` (`app_env = production`).
+
+- If the active OJS environment is determined to be **production**, calls to `/generate-users`, `/generate-submissions`, and `/generate-issue` are immediately blocked and return **HTTP 403 Forbidden**.
+- The `/cleanup` endpoint remains accessible in production environments to allow administrators to remove test records if needed.
+
+**Production Blocked Response (403):**
+```json
+{
+    "success": false,
+    "error": "Dummy data generation is disabled in production environments."
+}
+```
 
 ---
 

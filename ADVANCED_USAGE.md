@@ -1,7 +1,7 @@
 # Advanced Usage & Development Guide
 
-**Version:** 1.1.0  
-**Date:** 2026-06-07  
+**Version:** 2.0.0.3  
+**Date:** 2026-10-19  
 **Target Environment:** OJS 3.5+ / PHP 8.2+
 
 ---
@@ -77,20 +77,30 @@ if ($request !== null) {
 
 | File | Fix | Purpose |
 |------|-----|---------|
-| `UserGenerator.php` | Null-safe locale, `setDateRegistered()`, `getByRoleIds()` API | Works from CLI, required field, compatible API |
-| `SubmissionGenerator.php` | `getPrimaryLocale()` helper, null-safe `getUser()` | Locale resolution from CLI |
-| `IssueGenerator.php` | `getPrimaryLocale()` helper | Locale resolution from CLI |
+| `UserGenerator.php` | Null-safe locale, `setDateRegistered()`, `getByRoleIds()` API, `DB::transaction()` | Works from CLI, required field, atomic rollback |
+| `SubmissionGenerator.php` | `getPrimaryLocale()` helper, null-safe `getUser()`, `Core::getCurrentDate()` | Locale resolution, OJS 3.5 date compatibility |
+| `IssueGenerator.php` | `getPrimaryLocale()` helper, `Core::getCurrentDate()` | Locale resolution, OJS 3.5 date compatibility |
 | `Faker.php` | Unique email via `uniqid()` | Prevents duplicate key errors on re-runs |
+| `DataTracker.php` | `Context|int` parameter support, `PluginSettingsDAO` fallback | Enables CLI tracking and cleanup by integer context ID |
 
-### Limitations
+### CLI Data Tracking & Cleanup
 
-Even with these fixes, the plugin's **DataTracker** class calls `$context->updateSetting()` which is not available from CLI (the `Journal` object returned by `getById()` doesn't expose this method outside a web request). This means:
+In version 2.0.0.3+, **DataTracker** was enhanced with integer context ID resolution (`resolveContextId(Context|int)`) and uses the OJS Plugin Settings API (`Plugin::getSetting()` / `Plugin::updateSetting()`) with fallback to `PluginRegistry` and `PluginSettingsDAO`.
 
-- ✅ **Data generation** works from CLI
-- ❌ **Data tracking** (`trackUsers()`, `trackSubmissions()`, etc.) fails from CLI
-- ❌ **Cleanup** via DataTracker fails from CLI
+This means tracking and cleanup now function directly from CLI scripts without requiring an active web request:
 
-For cleanup from CLI, use the direct PDO approach (Approach B) instead.
+```php
+use APP\plugins\generic\dummyDataGenerator\classes\DataTracker;
+
+$contextId = 1; // Journal ID
+$tracker = new DataTracker();
+
+// Tracking accepts integer context ID directly
+$tracker->trackUsers($userIds, $contextId);
+
+// Cleanup accepts integer context ID directly
+$stats = $tracker->cleanup($contextId);
+```
 
 ---
 
