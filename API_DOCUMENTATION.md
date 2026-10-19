@@ -1,7 +1,7 @@
 # API Documentation
 
-**Version:** 2.0.0.0  
-**Last Updated:** 2026-07-11
+**Version:** 2.0.0.3  
+**Last Updated:** 2026-10-19
 
 Complete API reference for the Dummy Data Generator plugin for OJS 3.5+.
 

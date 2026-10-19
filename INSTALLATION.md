@@ -1,7 +1,7 @@
 # Installation Guide
 
-**Version:** 2.0.0.0  
-**Last Updated:** 2026-07-11
+**Version:** 2.0.0.3  
+**Last Updated:** 2026-10-19
 
 This guide covers installation of the Dummy Data Generator plugin for OJS 3.5+.
 
